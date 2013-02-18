@@ -192,17 +192,17 @@ Clipper is written and maintained by Wincent Colaiuta <win@wincent.com>.
 Development in progress can be inspected via the project's Git web-based
 repository browser at:
 
-  https://wincent.com/repos/clipper
+- https://wincent.com/repos/clipper
 
 the clone URL for which is:
 
-  git://git.wincent.com/clipper.git
+- git://git.wincent.com/clipper.git
 
 Mirrors exist on GitHub and Gitorious; these are automatically updated once
 per hour from the authoritative repository:
 
-  https://github.com/wincent/clipper
-  https://gitorious.org/clipper/clipper
+- https://github.com/wincent/clipper
+- https://gitorious.org/clipper/clipper
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
@@ -211,11 +211,11 @@ the project issue tracker etc).
 
 The official website for Clipper is:
 
-  https://wincent.com/products/clipper
+- https://wincent.com/products/clipper
 
 Bug reports should be submitted to the issue tracker at:
 
-  https://wincent.com/issues
+- https://wincent.com/issues
 
 # Donations
 
