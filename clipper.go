@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 )
 
@@ -15,17 +16,30 @@ const (
 	DEFAULT_LISTEN_PORT = 8377
 )
 
+var listenAddr string
+var listenPort int
+
+func init() {
+	flag.StringVar(&listenAddr, "address", DEFAULT_LISTEN_ADDR, "address to bind to")
+	flag.StringVar(&listenAddr, "a", DEFAULT_LISTEN_ADDR, "address to bind to (shorthand)")
+	flag.IntVar(&listenPort, "port", DEFAULT_LISTEN_PORT, "port to listen on")
+	flag.IntVar(&listenPort, "p", DEFAULT_LISTEN_PORT, "port to listen on (shorthand)")
+}
+
 func main() {
-	address := flag.String("address", DEFAULT_LISTEN_ADDR, "address to bind to")
-	port := flag.Int("port", DEFAULT_LISTEN_PORT, "port to listen on")
 	flag.Parse()
+	if flag.NArg() != 0 {
+		// additional command-line options not supported
+		flag.Usage()
+		os.Exit(1)
+	}
 
 	if _, err := exec.LookPath(PBCOPY); err != nil {
 		log.Fatal(err.Error())
 	}
 
 	log.Print("Starting the server")
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *address, *port))
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", listenAddr, listenPort))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
