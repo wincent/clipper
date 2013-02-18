@@ -1,6 +1,7 @@
 package main
 
 import(
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -9,19 +10,22 @@ import(
 )
 
 const(
-	PBCOPY      = "pbcopy"
-	LISTEN_ADDR = "127.0.0.1"
-	LISTEN_PORT = "8377"
+	PBCOPY              = "pbcopy"
+	DEFAULT_LISTEN_ADDR = "127.0.0.1"
+	DEFAULT_LISTEN_PORT = 8377
 )
 
 func main() {
+	address := flag.String("address", DEFAULT_LISTEN_ADDR, "address to bind to")
+	port    := flag.Int("port", DEFAULT_LISTEN_PORT, "port to listen on")
+	flag.Parse()
+
 	if _, err := exec.LookPath(PBCOPY); err != nil {
 		log.Fatal(err.Error())
 	}
 
 	log.Print("Starting the server")
-	address := fmt.Sprintf("%s:%s", LISTEN_ADDR, LISTEN_PORT)
-	listener, err := net.Listen("tcp", address)
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", *address, *port))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
