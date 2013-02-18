@@ -1,6 +1,7 @@
 package main
 
 import(
+	"fmt"
 	"io"
 	"log"
 	"net"
@@ -8,7 +9,9 @@ import(
 )
 
 const(
-	PBCOPY = "pbcopy"
+	PBCOPY      = "pbcopy"
+	LISTEN_ADDR = "127.0.0.1"
+	LISTEN_PORT = "8377"
 )
 
 func main() {
@@ -17,7 +20,8 @@ func main() {
 	}
 
 	log.Print("Starting the server")
-	listener, err := net.Listen("tcp", "127.0.0.1:8377")
+	address := fmt.Sprintf("%s:%s", LISTEN_ADDR, LISTEN_PORT)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
