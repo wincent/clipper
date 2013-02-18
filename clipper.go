@@ -7,9 +7,12 @@ import(
 	"os/exec"
 )
 
+const(
+	PBCOPY = "pbcopy"
+)
+
 func main() {
-	_, err := exec.LookPath("pbcopy")
-	if err != nil {
+	if _, err := exec.LookPath(PBCOPY); err != nil {
 		log.Fatal(err.Error())
 	}
 
@@ -31,12 +34,28 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-	copied, err := io.Copy(conn, conn)
+	defer log.Print("Connection closed")
+	defer conn.Close()
+
+	cmd := exec.Command(PBCOPY)
+	stdin, err := cmd.StdinPipe()
 	if err != nil {
+		log.Print(err.Error())
+		return
+	}
+	if err = cmd.Start(); err != nil {
+		log.Print(err.Error())
+		return
+	}
+
+	if copied, err := io.Copy(stdin, conn); err != nil {
 		log.Print(err.Error())
 	} else {
 		log.Print("Echoed ", copied, " bytes")
 	}
-	conn.Close()
-	log.Print("Connection closed")
+	stdin.Close()
+
+	if err = cmd.Wait(); err != nil {
+		log.Print(err.Error())
+	}
 }
