@@ -11,19 +11,25 @@ import (
 )
 
 const (
-	PBCOPY              = "pbcopy"
-	DEFAULT_LISTEN_ADDR = "127.0.0.1"
-	DEFAULT_LISTEN_PORT = 8377
+	PBCOPY = "pbcopy"
 )
 
 var listenAddr string
 var listenPort int
 
 func init() {
-	flag.StringVar(&listenAddr, "address", DEFAULT_LISTEN_ADDR, "address to bind to")
-	flag.StringVar(&listenAddr, "a", DEFAULT_LISTEN_ADDR, "address to bind to (shorthand)")
-	flag.IntVar(&listenPort, "port", DEFAULT_LISTEN_PORT, "port to listen on")
-	flag.IntVar(&listenPort, "p", DEFAULT_LISTEN_PORT, "port to listen on (shorthand)")
+	const (
+		defaultListenAddr = "127.0.0.1"
+		listenAddrUsage = "address to bind to"
+		defaultListenPort = 8377
+		listenPortUsage = "port to listen on"
+		shorthand = " (shorthand)"
+	)
+
+	flag.StringVar(&listenAddr, "address", defaultListenAddr, listenAddrUsage)
+	flag.StringVar(&listenAddr, "a", defaultListenAddr, listenAddrUsage + shorthand)
+	flag.IntVar(&listenPort, "port", defaultListenPort, listenPortUsage)
+	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage + shorthand)
 }
 
 func main() {
