@@ -1,6 +1,6 @@
 package main
 
-import(
+import (
 	"flag"
 	"fmt"
 	"io"
@@ -9,7 +9,7 @@ import(
 	"os/exec"
 )
 
-const(
+const (
 	PBCOPY              = "pbcopy"
 	DEFAULT_LISTEN_ADDR = "127.0.0.1"
 	DEFAULT_LISTEN_PORT = 8377
@@ -17,7 +17,7 @@ const(
 
 func main() {
 	address := flag.String("address", DEFAULT_LISTEN_ADDR, "address to bind to")
-	port    := flag.Int("port", DEFAULT_LISTEN_PORT, "port to listen on")
+	port := flag.Int("port", DEFAULT_LISTEN_PORT, "port to listen on")
 	flag.Parse()
 
 	if _, err := exec.LookPath(PBCOPY); err != nil {
