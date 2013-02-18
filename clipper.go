@@ -31,6 +31,8 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/user"
+	"strings"
 )
 
 const (
@@ -40,6 +42,7 @@ const (
 // flags
 var listenAddr string
 var listenPort int
+var logFile string
 
 func init() {
 	const (
@@ -47,6 +50,8 @@ func init() {
 		listenAddrUsage   = "address to bind to"
 		defaultListenPort = 8377
 		listenPortUsage   = "port to listen on"
+		defaultLogFile    = "~/Library/Logs/com.wincent.clipper.log"
+		logFileUsage      = "path to logfile"
 		shorthand         = " (shorthand)"
 	)
 
@@ -54,6 +59,8 @@ func init() {
 	flag.StringVar(&listenAddr, "a", defaultListenAddr, listenAddrUsage+shorthand)
 	flag.IntVar(&listenPort, "port", defaultListenPort, listenPortUsage)
 	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage+shorthand)
+	flag.StringVar(&logFile, "logfile", defaultLogFile, logFileUsage)
+	flag.StringVar(&logFile, "l", defaultLogFile, logFileUsage)
 }
 
 func main() {
@@ -64,25 +71,45 @@ func main() {
 		os.Exit(1)
 	}
 
+	expandedPath := pathByExpandingTildeInPath(logFile)
+	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outfile.Close()
+	log.SetOutput(outfile)
+	log.SetPrefix("clipper: ")
+
 	if _, err := exec.LookPath(PBCOPY); err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
 	log.Print("Starting the server")
 	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", listenAddr, listenPort))
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal(err)
 	}
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Print(err.Error())
+			log.Print(err)
 			return
 		}
 
 		go handleConnection(conn)
 	}
+}
+
+func pathByExpandingTildeInPath(path string) string {
+	if strings.HasPrefix(path, "~") {
+		user, err := user.Current()
+		if err != nil {
+			log.Fatal(err)
+		}
+		path = user.HomeDir + path[1:]
+	}
+	return path
 }
 
 func handleConnection(conn net.Conn) {
@@ -92,22 +119,22 @@ func handleConnection(conn net.Conn) {
 	cmd := exec.Command(PBCOPY)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		return
 	}
 	if err = cmd.Start(); err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 		return
 	}
 
 	if copied, err := io.Copy(stdin, conn); err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 	} else {
 		log.Print("Echoed ", copied, " bytes")
 	}
 	stdin.Close()
 
 	if err = cmd.Wait(); err != nil {
-		log.Print(err.Error())
+		log.Print(err)
 	}
 }
