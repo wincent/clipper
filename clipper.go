@@ -4,9 +4,15 @@ import(
 	"io"
 	"log"
 	"net"
+	"os/exec"
 )
 
 func main() {
+	_, err := exec.LookPath("pbcopy")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
 	log.Print("Starting the server")
 	listener, err := net.Listen("tcp", "127.0.0.1:8377")
 	if err != nil {
