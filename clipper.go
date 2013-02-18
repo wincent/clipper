@@ -40,9 +40,8 @@ const (
 )
 
 // flags
-var listenAddr string
+var listenAddr, logFile, configFile string
 var listenPort int
-var logFile string
 
 func init() {
 	const (
@@ -52,6 +51,8 @@ func init() {
 		listenPortUsage   = "port to listen on"
 		defaultLogFile    = "~/Library/Logs/com.wincent.clipper.log"
 		logFileUsage      = "path to logfile"
+		defaultConfigFile = "~/.clipper.json"
+		configFileUsage   = "path to (JSON) config file"
 		shorthand         = " (shorthand)"
 	)
 
@@ -61,6 +62,8 @@ func init() {
 	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage+shorthand)
 	flag.StringVar(&logFile, "logfile", defaultLogFile, logFileUsage)
 	flag.StringVar(&logFile, "l", defaultLogFile, logFileUsage)
+	flag.StringVar(&configFile, "config", defaultConfigFile, configFileUsage)
+	flag.StringVar(&configFile, "c", defaultConfigFile, configFileUsage+shorthand)
 }
 
 func main() {
