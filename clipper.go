@@ -14,6 +14,7 @@ const (
 	PBCOPY = "pbcopy"
 )
 
+// flags
 var listenAddr string
 var listenPort int
 
