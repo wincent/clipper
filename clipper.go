@@ -21,16 +21,16 @@ var listenPort int
 func init() {
 	const (
 		defaultListenAddr = "127.0.0.1"
-		listenAddrUsage = "address to bind to"
+		listenAddrUsage   = "address to bind to"
 		defaultListenPort = 8377
-		listenPortUsage = "port to listen on"
-		shorthand = " (shorthand)"
+		listenPortUsage   = "port to listen on"
+		shorthand         = " (shorthand)"
 	)
 
 	flag.StringVar(&listenAddr, "address", defaultListenAddr, listenAddrUsage)
-	flag.StringVar(&listenAddr, "a", defaultListenAddr, listenAddrUsage + shorthand)
+	flag.StringVar(&listenAddr, "a", defaultListenAddr, listenAddrUsage+shorthand)
 	flag.IntVar(&listenPort, "port", defaultListenPort, listenPortUsage)
-	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage + shorthand)
+	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage+shorthand)
 }
 
 func main() {
