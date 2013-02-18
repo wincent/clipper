@@ -23,11 +23,11 @@ func main() {
 			return
 		}
 
-		go HandleConnection(conn)
+		go handleConnection(conn)
 	}
 }
 
-func HandleConnection(conn net.Conn) {
+func handleConnection(conn net.Conn) {
 	buf := make([]byte, RECV_BUF_LEN)
 	n, err := conn.Read(buf)
 	if err != nil {
