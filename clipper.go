@@ -38,7 +38,11 @@ import (
 )
 
 const (
-	PBCOPY = "pbcopy"
+	pbcopy            = "pbcopy"
+	defaultListenAddr = "127.0.0.1"
+	defaultListenPort = 8377
+	defaultLogFile    = "~/Library/Logs/com.wincent.clipper.log"
+	defaultConfigFile = "~/.clipper.json"
 )
 
 type Config struct {
@@ -53,13 +57,9 @@ var listenPort int
 
 func init() {
 	const (
-		defaultListenAddr = "127.0.0.1"
 		listenAddrUsage   = "address to bind to"
-		defaultListenPort = 8377
 		listenPortUsage   = "port to listen on"
-		defaultLogFile    = "~/Library/Logs/com.wincent.clipper.log"
 		logFileUsage      = "path to logfile"
-		defaultConfigFile = "~/.clipper.json"
 		configFileUsage   = "path to (JSON) config file"
 		shorthand         = " (shorthand)"
 	)
@@ -91,13 +91,19 @@ func main() {
 	log.SetOutput(outfile)
 	log.SetPrefix("clipper: ")
 
-	if _, err := exec.LookPath(PBCOPY); err != nil {
+	if _, err := exec.LookPath(pbcopy); err != nil {
 		log.Fatal(err)
 	}
 
 	expandedPath = pathByExpandingTildeInPath(configFile)
 	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
-		log.Print(err)
+		if configFile == defaultConfigFile {
+			// default config file missing; just warn
+			log.Print(err)
+		} else {
+			// user explicitly asked for non-default config file; fail hard
+			log.Fatal(err)
+		}
 	} else {
 		if err = json.Unmarshal(configData, &config); err != nil {
 			log.Fatal(err)
@@ -136,7 +142,7 @@ func handleConnection(conn net.Conn) {
 	defer log.Print("Connection closed")
 	defer conn.Close()
 
-	cmd := exec.Command(PBCOPY)
+	cmd := exec.Command(pbcopy)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Print(err)
