@@ -57,11 +57,11 @@ var listenPort int
 
 func init() {
 	const (
-		listenAddrUsage   = "address to bind to"
-		listenPortUsage   = "port to listen on"
-		logFileUsage      = "path to logfile"
-		configFileUsage   = "path to (JSON) config file"
-		shorthand         = " (shorthand)"
+		listenAddrUsage = "address to bind to"
+		listenPortUsage = "port to listen on"
+		logFileUsage    = "path to logfile"
+		configFileUsage = "path to (JSON) config file"
+		shorthand       = " (shorthand)"
 	)
 
 	flag.StringVar(&listenAddr, "address", defaultListenAddr, listenAddrUsage)
