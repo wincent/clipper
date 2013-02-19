@@ -24,9 +24,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -38,6 +40,12 @@ import (
 const (
 	PBCOPY = "pbcopy"
 )
+
+type Config struct {
+	Passphrase string
+}
+
+var config Config
 
 // flags
 var listenAddr, logFile, configFile string
@@ -85,6 +93,15 @@ func main() {
 
 	if _, err := exec.LookPath(PBCOPY); err != nil {
 		log.Fatal(err)
+	}
+
+	expandedPath = pathByExpandingTildeInPath(configFile)
+	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
+		log.Print(err)
+	} else {
+		if err = json.Unmarshal(configData, &config); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	log.Print("Starting the server")
