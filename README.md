@@ -174,7 +174,7 @@ you can conveniently get files and other content into your clipboard:
 
 Again, assuming default address and port, we can use `-R` like this:
 
-    ssh -R localhost:8337:localhost:8377 user@host.example.org
+    ssh -R localhost:8377:localhost:8377 user@host.example.org
 
 With this, a tmux process running on the remote host can use the same
 configuration file, and our `run-shell` from above will send the buffer
