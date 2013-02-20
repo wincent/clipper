@@ -66,7 +66,7 @@ open a new pane or window:
 
 Despite the fact that the wrapper tool relies on an undocumented, private API,
 it is written quite defensively and appears to work pretty well. While this is a
-workable solution when running only the local machine, we'll need something else
+workable solution when running on the local machine, we'll need something else
 if we want things to work transparently both locally and remotely. This is where
 Clipper comes in.
 
