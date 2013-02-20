@@ -87,12 +87,31 @@ places.
 
 ## Installing
 
-I'm relatively new to Go so am not yet sure what the best way to distribute a
-command-line applicaton is. So, for now, it boils down to:
+A 64-bit binary archive prepared on OS X 10.8 Mountain Lion can be downloaded
+from:
+
+- https://wincent.com/products/clipper
+
+Alternatively, if you have a working Go environment on your system you can do:
+
+    go get github.com/wincent/clipper
+
+Finally, if you want to do things manually, you can clone from the authoritative
+Git repo and build manually (which again requires a working Go environment):
 
     git clone git://git.wincent.com/clipper.git
     cd clipper
     go build clipper.go
+
+In all cases, if you plan to use Clipper as a launch agent you'll either need to
+put it somewhere the system can find it (ie. at a location in the standard PATH,
+such as under `/usr/bin/`) or update the included property list file to specify
+the full path to the location where you installed the Clipper executable.
+
+The following example shows how you would install the built Clipper executable
+to `/usr/bin/` after cloning the repo and performing a build. It also shows how
+you would set up Clipper as a launch agent and start it running:
+
     sudo cp clipper /usr/bin
     cp com.wincent.clipper.plist ~/Library/LaunchAgents/
     launchctl load -w -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
