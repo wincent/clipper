@@ -252,6 +252,6 @@ POSSIBILITY OF SUCH DAMAGE.
 
 # History
 
-## 0.1 (not yet released)
+## 0.1 (19 February 2013)
 
 - Initial release
