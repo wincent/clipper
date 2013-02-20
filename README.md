@@ -141,7 +141,7 @@ to Clipper:
 
     nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
 
-## Configuring Zsh
+## Configuring Zsh (or Bash)
 
 By setting up an alias:
 
