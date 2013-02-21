@@ -130,7 +130,7 @@ as a wrapper.
 
 The launch agent installation can be reversed with:
 
-    launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
+    launchctl unload -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
     rm ~/Library/LaunchAgents/com.wincent.clipper.plist
     sudo rm /usr/bin/clipper
 
