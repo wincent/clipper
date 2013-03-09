@@ -143,7 +143,8 @@ terminal where it is running.
 
 Now we can use a slight modification of our command from earlier. Assuming we
 kept the standard listen address (127.0.0.1) and port (8377), we can use a
-command like this:
+command like this to send the last-copied text whenever we hit our tmux prefix
+key followed by `<C-y>`:
 
     bind-key C-y run-shell "tmux save-buffer - | nc localhost 8377"
 
@@ -156,7 +157,7 @@ There is nothing inherent in Clipper that ties it to tmux. We can use it from
 any process, including Vim.
 
 For example, we can add a mapping to our `~/.vimrc` to send the last-yanked text
-to Clipper:
+to Clipper by hitting `<leader>y`:
 
     nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
 
@@ -169,6 +170,7 @@ By setting up an alias:
 you can conveniently get files and other content into your clipboard:
 
     cat example.txt | clip
+    ls /etc | clip
 
 ## Configuring SSH
 
@@ -188,6 +190,10 @@ To make this automated, entries can be set up in `.ssh/config`:
 
     Host host.example.org
       RemoteForward 8377 localhost:8377
+
+With this, forwarding is automatically set up any time you run:
+
+    ssh user@host.example.org
 
 # Security
 
