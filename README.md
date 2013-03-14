@@ -148,7 +148,7 @@ key followed by `<C-y>`:
 
     bind-key C-y run-shell "tmux save-buffer - | nc localhost 8377"
 
-Here we're using netcat (`nc`)` to send the contents of the buffer to the
+Here we're using netcat (`nc`) to send the contents of the buffer to the
 listening Clipper agent.
 
 ## Configuring Vim
