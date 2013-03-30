@@ -37,11 +37,15 @@ from the command-line. We've already seen this at work above. Basically, we can
 do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
 
 tmux has a couple of handy commands related to copy mode buffers, namely
-`save-buffer` and `show-buffer`. With these, you can dump the contents of a
-buffer into a text file, or emit it over standard out.
+`save-buffer` and `copy-pipe`. With these, you can dump the contents of a
+buffer to standard out.
 
 In theory, combining these two elements, we can add something like this to our
 `~/.tmux.conf`:
+
+    bind-key -t vi-copy Enter copy-pipe pbcopy
+
+or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
 
     bind-key C-y run-shell "tmux save-buffer - | pbcopy"
 
@@ -147,6 +151,12 @@ command like this to send the last-copied text whenever we hit our tmux prefix
 key followed by `<C-y>`:
 
     bind-key C-y run-shell "tmux save-buffer - | nc localhost 8377"
+
+In tmux 1.8 or later, we have access to the new `copy-pipe` command and can use
+a single key binding to copy text into the tmux copy buffer and send it to
+Clipper and therefore the system clipboard at the same time:
+
+    bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
 
 Here we're using netcat (`nc`) to send the contents of the buffer to the
 listening Clipper agent.
