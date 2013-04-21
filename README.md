@@ -47,7 +47,7 @@ In theory, combining these two elements, we can add something like this to our
 
 or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
 
-    bind-key C-y run-shell "tmux save-buffer - | pbcopy"
+    bind-key y run-shell "tmux save-buffer - | pbcopy"
 
 In practice, this doesn't work because tmux uses the `daemon(3)` system call,
 which ends up putting it in a different execution context from which it cannot
@@ -148,9 +148,9 @@ terminal where it is running.
 Now we can use a slight modification of our command from earlier. Assuming we
 kept the standard listen address (127.0.0.1) and port (8377), we can use a
 command like this to send the last-copied text whenever we hit our tmux prefix
-key followed by `<C-y>`:
+key followed by `y`:
 
-    bind-key C-y run-shell "tmux save-buffer - | nc localhost 8377"
+    bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
 
 In tmux 1.8 or later, we have access to the new `copy-pipe` command and can use
 a single key binding to copy text into the tmux copy buffer and send it to
