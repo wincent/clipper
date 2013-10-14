@@ -4,6 +4,31 @@ Clipper is an OS X "launch agent" that runs in the background providing a
 service that exposes the local clipboard to tmux sessions and other processes
 running both locally and remotely.
 
+# At a glance
+
+    # Installation (using Homebrew; for non-Homebrew installs see below)
+    brew install clipper # run this outside of a tmux session
+
+    # Configuration for ~/.tmux.conf:
+    # tmux < 1.8: bind <prefix>-y to forward to Clipper
+    bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
+
+    # tmux >= 1.8: bind "Enter" in copy mode to both copy and forward to Clipper
+    bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
+
+    # Configuration for ~/.vimrc:
+    # Bind <leader>y to forward last-yanked text to Clipper
+    nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
+
+    # Configuration for ~/.bash_profile, ~/.zshrc etc:
+    # Pipe anything into `clip` to forward it to Clipper
+    alias clip="nc localhost 8377"
+
+    # Configuration for ~/.ssh/config:
+    # Forward Clipper connection to remote host
+    Host host.example.org
+      RemoteForward 8377 localhost:8377
+
 # Problem
 
 You're running tmux, possibly on a remote machine via ssh, and want to copy
