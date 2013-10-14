@@ -91,8 +91,12 @@ places.
 
 ## Installing
 
-A 64-bit binary archive prepared on OS X 10.8 Mountain Lion can be downloaded
-from:
+For Homebrew users, install by running (outside of all tmux sessions):
+
+    brew install clipper # and follow the prompts...
+
+For non-Homebrew users, a 64-bit binary archive prepared on OS X 10.8 Mountain
+Lion can be downloaded from:
 
 - https://wincent.com/products/clipper
 
@@ -107,10 +111,12 @@ Git repo and build manually (which again requires a working Go environment):
     cd clipper
     go build clipper.go
 
-In all cases, if you plan to use Clipper as a launch agent you'll either need to
-put it somewhere the system can find it (ie. at a location in the standard PATH,
-such as under `/usr/bin/`) or update the included property list file to specify
-the full path to the location where you installed the Clipper executable.
+### Additional steps for non-Homebrew installs
+
+If you plan to use Clipper as a launch agent you'll either need to put it
+somewhere the system can find it (ie. at a location in the standard PATH, such
+as under `/usr/bin/`) or update the included property list file to specify the
+full path to the location where you installed the Clipper executable.
 
 The following example shows how you would install the built Clipper executable
 to `/usr/bin/` after cloning the repo and performing a build. It also shows how
@@ -132,7 +138,11 @@ as a wrapper.
 
 ## Uninstalling
 
-The launch agent installation can be reversed with:
+A Homebrew installation can be reversed with:
+
+    brew uninstall clipper
+
+A manual launch agent installation can be reversed with:
 
     launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
     rm ~/Library/LaunchAgents/com.wincent.clipper.plist
