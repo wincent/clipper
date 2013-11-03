@@ -240,6 +240,28 @@ With this, forwarding is automatically set up any time you run:
 
     ssh user@host.example.org
 
+# Troubleshooting
+
+## Fixing `remote port forwarding failed for listen port 8377`
+
+This message can be emitted when the remote host you're connecting to already
+has something bound to the requested port. If there is a competing service that
+you can't move to another port, Clipper can be configured to use a different
+port with the `--port` switch, described above.
+
+Another reason you might see this warning is because an old or stale SSH daemon
+is lingering from a prior connection attempt. The following example commands
+show how you can detect the PID of such a process (in this example, 29517) and
+kill it off:
+
+    $ sudo netstat -antpl | grep 8377 # look for offending PID (29517) in output
+    $ ps auxww | grep 29517           # confirm it's your old sshd process
+    $ kill 29517                      # kill off old process
+    $ ps auxww | grep 29517           # confirm that process is really gone
+
+Consult the netstat man page for more details (supported options may vary
+depending on the host operating system).
+
 # Security
 
 At the moment, Clipper doesn't employ any authentication. It does, by default,
