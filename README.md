@@ -322,6 +322,11 @@ POSSIBILITY OF SUCH DAMAGE.
 
 # History
 
+## 0.2 (2 November 2013)
+
+- Documentation updates
+- Updated sample plist to use UTF-8 encoding by default
+
 ## 0.1 (19 February 2013)
 
 - Initial release
