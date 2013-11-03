@@ -23,8 +23,8 @@ clipper-$$VERSION.zip: version clipper
 	zip $@ clipper
 
 upload: version clipper-$$VERSION.zip
-	aws put s3.wincent.com/clipper/releases/clipper-$$VERSION.zip clipper-$$VERSION.zip
-	aws put "s3.wincent.com/clipper/releases/clipper-$$VERSION.zip?acl" --public
+	aws --curl-options=--insecure put s3.wincent.com/clipper/releases/clipper-$$VERSION.zip clipper-$$VERSION.zip
+	aws --curl-options=--insecure put "s3.wincent.com/clipper/releases/clipper-$$VERSION.zip?acl" --public
 
 all: version build tag archive upload
 
