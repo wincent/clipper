@@ -12,6 +12,11 @@
 		<string>--port</string>
 		<string>8377</string>
 	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>LANG</key>
+		<string>en_US.UTF-8</string>
+	</dict>
 	<key>KeepAlive</key>
 	<true/>
 	<key>LimitLoadToSessionType</key>
