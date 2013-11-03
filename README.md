@@ -240,9 +240,7 @@ With this, forwarding is automatically set up any time you run:
 
     ssh user@host.example.org
 
-# Troubleshooting
-
-## Fixing `remote port forwarding failed for listen port 8377`
+### Fixing `remote port forwarding failed for listen port 8377`
 
 This message can be emitted when the remote host you're connecting to already
 has something bound to the requested port. If there is a competing service that
