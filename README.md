@@ -240,6 +240,63 @@ With this, forwarding is automatically set up any time you run:
 
     ssh user@host.example.org
 
+This works particularly well if you use the `ControlMaster`, `ControlPath` and
+`ControlPersist` settings described in the `ssh_config` man page. These allow
+you to set up a single forward, and re-use it each time you connect, even if you
+have multiple concurrent connnections to a given server. An example
+`~/.ssh/config` configuration that would give you this for all hosts would be
+something like:
+
+    Host *
+      ControlMaster auto
+      ControlPath ~/.ssh/%r@%h:%p
+      ControlPersist 240
+
+## Configuring Mosh
+
+Mosh (http://mosh.mit.edu/) is an alternative to SSH that aims to be a superior
+"mobile shell" than SSH. It is designed to handle intermittent connectivity, and
+provides relatively intelligent local echoing of line editing commands, but it
+doesn't yet support any kind of port forwarding (as of the current release,
+which is version 1.2.4 at the time of writing).
+
+One way to use Clipper with Mosh is to use Mosh for interactive editing but keep
+using SSH for port forwarding. For example, just say you want to connect to a
+remote machine with the alias "sandbox", you could have entries like this in
+your `~/.ssh/config`:
+
+    Host sandbox
+      ControlMaster no
+      ControlPath none
+      Hostname sandbox.example.com
+
+    Host sandbox-clipper
+      ControlMaster no
+      ControlPath none
+      ExitOnForwardFailure yes
+      Hostname sandbox.example.com
+      RemoteForward 8377 localhost:8377
+
+With this set-up, you can set up the tunnel with:
+
+    ssh -N -f sandbox
+
+SSH will connect to the server, set up the port fowarding and then go into the
+background.
+
+Then connect using Mosh (it will respect the settings in your `~/.ssh/config`
+file because it uses SSH to bootstrap new connections):
+
+    mosh sandbox
+
+You could also set up a shell alias to make setting up the Clipper tunnel more
+convenient; for example:
+
+    alias clip-sandbox='ssh -N -f sandbox'
+
+You should only need to re-run this command if the connection is interrupted for
+some reason.
+
 ### Fixing `remote port forwarding failed for listen port 8377`
 
 This message can be emitted when the remote host you're connecting to already
