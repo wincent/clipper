@@ -257,6 +257,13 @@ kill it off:
     $ kill 29517                      # kill off old process
     $ ps auxww | grep 29517           # confirm that process is really gone
 
+For the bold and lazy, you can simply kill off all `sshd` process belonging to
+your user with:
+
+    $ killall -u $USER sshd
+
+Do not do this as root, as you will lock yourself out of your server.
+
 Consult the netstat man page for more details (supported options may vary
 depending on the host operating system).
 
