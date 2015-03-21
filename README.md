@@ -352,11 +352,10 @@ the clone URL for which is:
 
 - git://git.wincent.com/clipper.git
 
-Mirrors exist on GitHub and Gitorious; these are automatically updated once
+A mirror exists on GitHub; it is automatically updated once
 per hour from the authoritative repository:
 
 - https://github.com/wincent/clipper
-- https://gitorious.org/clipper/clipper
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
