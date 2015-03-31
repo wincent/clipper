@@ -324,6 +324,15 @@ Do not do this as root, as you will lock yourself out of your server.
 Consult the netstat man page for more details (supported options may vary
 depending on the host operating system).
 
+# "Reverse" Clipper
+
+Clipper helps you get content into your local clipboard from other, possibly
+remote, processes. To send content in the other direction, just paste normally.
+Note that to make this pleasant in an envionment like Vim, you may want to set
+up bracketed paste mode; see [my dotfiles for an
+example](https://github.com/wincent/wincent/blob/3b0b2950cdcb09d23c87f0167c207d8c837cb1b2/.vim/plugin/term.vim#L93-114)
+of how this can be done.
+
 # Security
 
 At the moment, Clipper doesn't employ any authentication. It does, by default,
