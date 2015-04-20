@@ -1,3 +1,5 @@
+![Clipper](https://raw.github.com/wincent/clipper/master/logo.png)
+
 # Overview
 
 Clipper is an OS X "launch agent" that runs in the background providing a
