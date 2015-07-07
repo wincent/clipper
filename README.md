@@ -381,14 +381,6 @@ Bug reports should be submitted to the issue tracker at:
 
 - https://wincent.com/issues
 
-# Donations
-
-Clipper is free software released under the terms of the BSD license. If you
-would like to support further development you can make a donation via PayPal to
-win@wincent.com:
-
-- https://www.paypal.com/xclick/business=win@wincent.com&item_name=clipper+donation&no_note=1&currency_code=EUR&lc=GB
-
 # License
 
 Copyright 2013-2015 Greg Hurrell. All rights reserved.
