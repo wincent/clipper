@@ -209,7 +209,7 @@ to Clipper by hitting `<leader>y`:
     nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
 
 For the lazy, this functionality plus a `:Clip` command is made available as a
-(separate Vim plug-in)[https://github.com/wincent/vim-clipper] called
+[separate Vim plug-in](https://github.com/wincent/vim-clipper) called
 "vim-clipper".
 
 ## Configuring Zsh (or Bash)
