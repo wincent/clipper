@@ -350,7 +350,7 @@ mechanism to the protocol in the near future in any case.
 
 # Author
 
-Clipper is written and maintained by Wincent Colaiuta <win@wincent.com>.
+Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
 
 # Development
 
@@ -391,7 +391,7 @@ win@wincent.com:
 
 # License
 
-Copyright 2013 Wincent Colaiuta. All rights reserved.
+Copyright 2013-2015 Greg Hurrell. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
