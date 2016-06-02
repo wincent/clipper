@@ -33,7 +33,9 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"os/signal"
 	"os/user"
+	"syscall"
 	"strings"
 )
 
@@ -116,15 +118,23 @@ func main() {
 		log.Fatal(err)
 	}
 
-	for {
-		conn, err := listener.Accept()
-		if err != nil {
-			log.Print(err)
-			return
-		}
+	go func() {
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				log.Print(err)
+				return
+			}
 
-		go handleConnection(conn)
-	}
+			go handleConnection(conn)
+		}
+	}()
+
+	// Need to catch signals in order for `defer`-ed clean-up items to run.
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
+	sig := <-c
+	log.Print("Got signal ", sig)
 }
 
 func pathByExpandingTildeInPath(path string) string {
