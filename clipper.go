@@ -48,7 +48,7 @@ const (
 )
 
 type Config struct {
-	Passphrase string
+	Address string
 }
 
 var config Config
@@ -112,11 +112,26 @@ func main() {
 		}
 	}
 
-	log.Print("Starting the server")
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", listenAddr, listenPort))
+	var addr string
+	var listenType string
+	if (config.Address != "") {
+		addr = pathByExpandingTildeInPath(config.Address)
+	} else {
+		addr = pathByExpandingTildeInPath(listenAddr)
+	}
+	if strings.HasPrefix(addr, "/") {
+		log.Print("Starting UNIX domain socket server at ", addr)
+		listenType = "unix"
+	} else {
+		log.Print("Starting TCP server on ", addr)
+		listenType = "tcp"
+		addr = fmt.Sprintf("%s:%d", listenAddr, listenPort)
+	}
+	listener, err := net.Listen(listenType, addr)
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer listener.Close()
 
 	go func() {
 		for {
