@@ -123,11 +123,6 @@ For Homebrew users, install by running (outside of all tmux sessions):
 
     brew install clipper # and follow the prompts...
 
-For non-Homebrew users, a 64-bit binary archive prepared on OS X 10.8 Mountain
-Lion can be downloaded from:
-
-- https://wincent.com/products/clipper
-
 Alternatively, if you have a working Go environment on your system you can do:
 
     go get github.com/wincent/clipper
@@ -137,7 +132,7 @@ Git repo and build manually (which again requires a working Go environment):
 
     git clone git://git.wincent.com/clipper.git
     cd clipper
-    go build clipper.go
+    go build
 
 ### Additional steps for non-Homebrew installs
 
@@ -359,19 +354,15 @@ Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
 
 # Development
 
-Development in progress can be inspected via the project's Git web-based
-repository browser at:
+The official Clipper source code repo is at:
 
-- https://wincent.com/repos/clipper
+- http://git.wincent.com/clipper.git
 
-the clone URL for which is:
-
-- git://git.wincent.com/clipper.git
-
-A mirror exists on GitHub; it is automatically updated once
-per hour from the authoritative repository:
+Mirrors exist at:
 
 - https://github.com/wincent/clipper
+- https://gitlab.com/wincent/clipper
+- https://bitbucket.org/ghurrell/clipper
 
 Patches are welcome via the usual mechanisms (pull requests, email, posting to
 the project issue tracker etc).
@@ -380,11 +371,11 @@ the project issue tracker etc).
 
 The official website for Clipper is:
 
-- https://wincent.com/products/clipper
+- https://github.com/wincent/clipper
 
 Bug reports should be submitted to the issue tracker at:
 
-- https://wincent.com/issues
+- https://github.com/wincent/clipper/issues
 
 # License
 
