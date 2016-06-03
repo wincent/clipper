@@ -198,7 +198,7 @@ Note that explicit command line options — including options supplied via a pli
 
 ### `--address`
 
-Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost". This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have create a UNIX domain socket at that location and listen on that instead.
+Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost". This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have Clipper create a UNIX domain socket at that location and listen on that instead.
 
 ### `--port`
 
@@ -420,6 +420,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ## 0.3 (not yet released)
 
 - Add support for listening over a UNIX domain socket.
+- Add support for reading options from a config file (`--config`/`-c` switch).
 
 ## 0.2 (2 November 2013)
 
