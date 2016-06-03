@@ -56,6 +56,7 @@ var defaults = Options{
 	Port:    8377,
 }
 var settings Options // Result of merging: flags > config > defaults.
+var showHelp bool
 
 const (
 	pbcopy = "pbcopy"
@@ -67,6 +68,7 @@ func init() {
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
 		configFileUsage = "path to (JSON) config file"
+		helpUsage       = "show usage information"
 		shorthand       = " (shorthand)"
 	)
 
@@ -78,6 +80,8 @@ func init() {
 	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
 	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
 	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
+	flag.BoolVar(&showHelp, "help", false, helpUsage)
+	flag.BoolVar(&showHelp, "h", false, helpUsage+shorthand)
 }
 
 func main() {
@@ -90,6 +94,10 @@ func main() {
 		// Additional command-line options not supported.
 		flag.Usage()
 		os.Exit(1)
+	}
+	if showHelp {
+		flag.Usage()
+		os.Exit(0)
 	}
 
 	// Detect which flags were passed in explicitly, and set them immediately.
