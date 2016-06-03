@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC -//Apple Computer//DTD PLIST 1.0//EN http://www.apple.com/DTDs/PropertyList-1.0.dtd >
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.wincent.clipper</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>/usr/local/bin/clipper</string>
+		<string>--address</string>
+		<string>127.0.0.1</string>
+		<string>--port</string>
+		<string>8377</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>LANG</key>
+		<string>en_US.UTF-8</string>
+	</dict>
+	<key>KeepAlive</key>
+	<true/>
+	<key>LimitLoadToSessionType</key>
+	<string>Aqua</string>
+</dict>
+</plist>

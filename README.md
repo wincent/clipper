@@ -138,15 +138,16 @@ Git repo and build manually (which again requires a working Go environment):
 
 If you plan to use Clipper as a launch agent you'll either need to put it
 somewhere the system can find it (ie. at a location in the standard PATH, such
-as under `/usr/bin/`) or update the included property list file to specify the
-full path to the location where you installed the Clipper executable.
+as under `/usr/local/bin/`) and update the included property list file to
+specify the full path to the location where you installed the Clipper
+executable.
 
 The following example shows how you would install the built Clipper executable
-to `/usr/bin/` after cloning the repo and performing a build. It also shows how
+to `/usr/local/bin/` after cloning the repo and performing a build. It also shows how
 you would set up Clipper as a launch agent and start it running:
 
-    sudo cp clipper /usr/bin
-    cp com.wincent.clipper.plist ~/Library/LaunchAgents/
+    sudo cp clipper /usr/local/bin
+    cp contrib/tcp-port/com.wincent.clipper.plist ~/Library/LaunchAgents/
     launchctl load -w -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
 
 Alternatively, if you'd like to run Clipper manually, you can do so with:
@@ -169,7 +170,7 @@ A manual launch agent installation can be reversed with:
 
     launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
     rm ~/Library/LaunchAgents/com.wincent.clipper.plist
-    sudo rm /usr/bin/clipper
+    sudo rm /usr/local/bin/clipper
 
 As before, note that you should only run `launchctl` outside of a tmux session.
 
