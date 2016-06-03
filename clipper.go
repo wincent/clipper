@@ -35,27 +35,30 @@ import (
 	"os/exec"
 	"os/signal"
 	"os/user"
-	"syscall"
+	"path/filepath"
 	"strings"
+	"syscall"
 )
 
-const (
-	pbcopy            = "pbcopy"
-	defaultListenAddr = "127.0.0.1"
-	defaultListenPort = 8377
-	defaultLogFile    = "~/Library/Logs/com.wincent.clipper.log"
-	defaultConfigFile = "~/.clipper.json"
-)
-
-type Config struct {
+type Options struct {
 	Address string
+	Config  string
+	Logfile string
+	Port    int
 }
 
-var config Config
+var config Options // Options read from disk.
+var flags Options  // Options set via commandline flags.
+var defaults = Options{
+	Address: "127.0.0.1",
+	Config:  "~/.clipper.json",
+	Logfile: "~/Library/Logs/com.wincent.clipper.log",
+	Port:    8377,
+}
 
-// flags
-var listenAddr, logFile, configFile string
-var listenPort int
+const (
+	pbcopy = "pbcopy"
+)
 
 func init() {
 	const (
@@ -66,14 +69,14 @@ func init() {
 		shorthand       = " (shorthand)"
 	)
 
-	flag.StringVar(&listenAddr, "address", defaultListenAddr, listenAddrUsage)
-	flag.StringVar(&listenAddr, "a", defaultListenAddr, listenAddrUsage+shorthand)
-	flag.IntVar(&listenPort, "port", defaultListenPort, listenPortUsage)
-	flag.IntVar(&listenPort, "p", defaultListenPort, listenPortUsage+shorthand)
-	flag.StringVar(&logFile, "logfile", defaultLogFile, logFileUsage)
-	flag.StringVar(&logFile, "l", defaultLogFile, logFileUsage)
-	flag.StringVar(&configFile, "config", defaultConfigFile, configFileUsage)
-	flag.StringVar(&configFile, "c", defaultConfigFile, configFileUsage+shorthand)
+	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
+	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
+	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
+	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
+	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
+	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
+	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
+	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
 }
 
 func main() {
@@ -84,7 +87,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	expandedPath := pathByExpandingTildeInPath(logFile)
+	expandedPath := expandPath(flags.Logfile)
 	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
@@ -97,9 +100,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	expandedPath = pathByExpandingTildeInPath(configFile)
+	expandedPath = expandPath(flags.Config)
 	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
-		if configFile == defaultConfigFile {
+		if flags.Config == defaults.Config {
 			// default config file missing; just warn
 			log.Print(err)
 		} else {
@@ -114,10 +117,12 @@ func main() {
 
 	var addr string
 	var listenType string
-	if (config.Address != "") {
-		addr = pathByExpandingTildeInPath(config.Address)
+	if isPath(config.Address) {
+		addr = expandPath(config.Address)
+	} else if isPath(flags.Address) {
+		addr = expandPath(flags.Address)
 	} else {
-		addr = pathByExpandingTildeInPath(listenAddr)
+		addr = flags.Address
 	}
 	if strings.HasPrefix(addr, "/") {
 		log.Print("Starting UNIX domain socket server at ", addr)
@@ -125,7 +130,7 @@ func main() {
 	} else {
 		log.Print("Starting TCP server on ", addr)
 		listenType = "tcp"
-		addr = fmt.Sprintf("%s:%d", listenAddr, listenPort)
+		addr = fmt.Sprintf("%s:%d", flags.Address, flags.Port)
 	}
 	listener, err := net.Listen(listenType, addr)
 	if err != nil {
@@ -150,6 +155,22 @@ func main() {
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 	sig := <-c
 	log.Print("Got signal ", sig)
+}
+
+// Returns true for things which look like paths (start with "~", "." or "/").
+func isPath(path string) bool {
+	return strings.HasPrefix(path, "~") ||
+		strings.HasPrefix(path, ".") ||
+		strings.HasPrefix(path, "/")
+}
+
+func expandPath(path string) string {
+	expanded := pathByExpandingTildeInPath(path)
+	result, err := filepath.Abs(expanded)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return result
 }
 
 func pathByExpandingTildeInPath(path string) string {
