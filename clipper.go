@@ -55,6 +55,7 @@ var defaults = Options{
 	Logfile: "~/Library/Logs/com.wincent.clipper.log",
 	Port:    8377,
 }
+var settings Options // Result of merging: flags > config > defaults.
 
 const (
 	pbcopy = "pbcopy"
@@ -80,34 +81,41 @@ func init() {
 }
 
 func main() {
+	// Set this up before we even know where our logfile is, in case we have to
+	// bail early and print something to stderr.
+	log.SetPrefix("clipper: ")
+
 	flag.Parse()
 	if flag.NArg() != 0 {
-		// additional command-line options not supported
+		// Additional command-line options not supported.
 		flag.Usage()
 		os.Exit(1)
 	}
 
-	expandedPath := expandPath(flags.Logfile)
-	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
-	if err != nil {
-		log.Fatal(err)
+	// Detect which flags were passed in explicitly, and set them immediately.
+	// This is used below to determine response to a missing config file.
+	visitor := func(f *flag.Flag) {
+		if f.Name == "address" || f.Name == "a" {
+			settings.Address = flags.Address
+		} else if f.Name == "config" || f.Name == "c" {
+			settings.Config = flags.Config
+		} else if f.Name == "port" || f.Name == "p" {
+			settings.Port = flags.Port
+		} else if f.Name == "logfile" || f.Name == "l" {
+			settings.Logfile = flags.Logfile
+		}
 	}
-	defer outfile.Close()
-	log.SetOutput(outfile)
-	log.SetPrefix("clipper: ")
+	flag.Visit(visitor)
 
-	if _, err := exec.LookPath(pbcopy); err != nil {
-		log.Fatal(err)
-	}
-
-	expandedPath = expandPath(flags.Config)
+	expandedPath := expandPath(flags.Config)
 	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
-		if flags.Config == defaults.Config {
-			// default config file missing; just warn
-			log.Print(err)
-		} else {
-			// user explicitly asked for non-default config file; fail hard
+		if settings.Config != "" {
+			// User explicitly asked for a config file and it wasn't there; fail
+			// hard.
 			log.Fatal(err)
+		} else {
+			// Default config file missing; just warn.
+			log.Print(err)
 		}
 	} else {
 		if err = json.Unmarshal(configData, &config); err != nil {
@@ -115,14 +123,49 @@ func main() {
 		}
 	}
 
+	// Final merge into settings object.
+	if settings.Address == "" {
+		if config.Address != "" {
+			settings.Address = config.Address
+		} else {
+			settings.Address = defaults.Address
+		}
+	}
+	if settings.Logfile == "" {
+		if config.Logfile != "" {
+			settings.Logfile = config.Logfile
+		} else {
+			settings.Logfile = defaults.Logfile
+		}
+	}
+	if settings.Port == 0 {
+		if config.Port != 0 {
+			settings.Port = config.Port
+		} else {
+			settings.Port = defaults.Port
+		}
+	}
+
+	expandedPath = expandPath(settings.Logfile)
+	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer outfile.Close()
+	log.SetOutput(outfile)
+
+	if _, err := exec.LookPath(pbcopy); err != nil {
+		log.Fatal(err)
+	}
+
 	var addr string
 	var listenType string
 	if isPath(config.Address) {
 		addr = expandPath(config.Address)
-	} else if isPath(flags.Address) {
-		addr = expandPath(flags.Address)
+	} else if isPath(settings.Address) {
+		addr = expandPath(settings.Address)
 	} else {
-		addr = flags.Address
+		addr = settings.Address
 	}
 	if strings.HasPrefix(addr, "/") {
 		log.Print("Starting UNIX domain socket server at ", addr)
@@ -130,7 +173,7 @@ func main() {
 	} else {
 		log.Print("Starting TCP server on ", addr)
 		listenType = "tcp"
-		addr = fmt.Sprintf("%s:%d", flags.Address, flags.Port)
+		addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
 	}
 	listener, err := net.Listen(listenType, addr)
 	if err != nil {
