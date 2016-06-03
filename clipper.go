@@ -138,6 +138,11 @@ func main() {
 			settings.Logfile = defaults.Logfile
 		}
 	}
+	if settings.Port != 0 || config.Port != 0 {
+		if isPath(settings.Address) {
+			log.Print("--port option ignored when listening on UNIX domain socket")
+		}
+	}
 	if settings.Port == 0 {
 		if config.Port != 0 {
 			settings.Port = config.Port
@@ -160,9 +165,7 @@ func main() {
 
 	var addr string
 	var listenType string
-	if isPath(config.Address) {
-		addr = expandPath(config.Address)
-	} else if isPath(settings.Address) {
+	if isPath(settings.Address) {
 		addr = expandPath(settings.Address)
 	} else {
 		addr = settings.Address
