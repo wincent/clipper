@@ -417,7 +417,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
-## 0.3 (not yet released)
+## 0.3 (3 June 2016)
 
 - Add support for listening over a UNIX domain socket.
 - Add support for reading options from a config file (`--config`/`-c` switch).
