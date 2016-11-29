@@ -51,8 +51,8 @@ type Options struct {
 }
 
 var config Options   // Options read from disk.
+var defaults Options // Default options.
 var flags Options    // Options set via commandline flags.
-var defaults Options // default Options
 var settings Options // Result of merging: flags > config > defaults.
 var showHelp bool
 
@@ -96,7 +96,6 @@ func setDefaults() {
 }
 
 func mergeSettings() {
-
 	// Detect which flags were passed in explicitly, and set them immediately.
 	// This is used below to determine response to a missing config file.
 	visitor := func(f *flag.Flag) {
@@ -170,9 +169,9 @@ func main() {
 	// Set this up before we even know where our logfile is, in case we have to
 	// bail early and print something to stderr.
 	log.SetPrefix("clipper: ")
-	// set default values per GOOS
+	// Set default values per GOOS.
 	setDefaults()
-	// setup flags subsystem
+	// Setup flags subsystem.
 	initFlags()
 
 	flag.Parse()
@@ -186,7 +185,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	// merge flags -> config -> default
+	// Merge flags -> config -> defaults.
 	mergeSettings()
 
 	expandedPath := expandPath(settings.Logfile)
