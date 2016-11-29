@@ -86,7 +86,7 @@ func initFlags() {
 }
 
 func setDefaults() {
-	defaults.Address = "127.0.0.1"
+	defaults.Address = "" // IPv4/IPv6 loopback.
 	defaults.Port = 8377
 
 	if runtime.GOOS == "linux" {
@@ -224,11 +224,15 @@ func main() {
 		addr = settings.Address
 	}
 	if strings.HasPrefix(addr, "/") {
-		log.Print("Starting UNIX domain socket server at ", addr)
 		listenType = "unix"
+		log.Print("Starting UNIX domain socket server at ", addr)
 	} else {
-		log.Print("Starting TCP server on ", addr)
 		listenType = "tcp"
+		if addr == "" {
+			log.Print("Starting TCP server on loopback interface")
+		} else {
+			log.Print("Starting TCP server on ", addr)
+		}
 		addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
 	}
 	listener, err := net.Listen(listenType, addr)

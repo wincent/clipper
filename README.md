@@ -158,9 +158,9 @@ As previously noted, Clipper supports a number of command line options, which yo
 ```
 Usage of ./clipper:
   -a string
-        address to bind to (shorthand) (default "127.0.0.1")
+        address to bind to (shorthand)
   -address string
-        address to bind to (default "127.0.0.1")
+        address to bind to
   -c string
         path to (JSON) config file (shorthand) (default "~/.clipper.json")
   -config string
@@ -442,6 +442,8 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 ## master (not yet released)
 
 - Linux support via `xclip` instead of `pbcopy` (patch from Nelson Fernandez).
+- Added `--executable` and `--flags` options.
+- On dual-stack systems, listen on both IPv4 and IPv6 loopback interfaces by default.
 
 ## 0.3 (3 June 2016)
 
