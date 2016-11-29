@@ -8,7 +8,6 @@ help:
 version:
 	@if [ "$$VERSION" = "" ]; then echo "VERSION not set"; exit 1; fi
 
-
 clipper_linux:
 	GOOS=linux GOARCH=amd64 go build -o clipper_linux clipper.go
 
