@@ -158,9 +158,14 @@ func mergeSettings() {
 	if settings.ClipApp == "" {
 		if config.ClipApp != "" {
 			settings.ClipApp = config.ClipApp
-			settings.ClipAppArgs = config.ClipAppArgs
 		} else {
 			settings.ClipApp = defaults.ClipApp
+		}
+	}
+	if settings.ClipAppArgs == "" {
+		if config.ClipAppArgs != "" {
+			settings.ClipAppArgs = config.ClipAppArgs
+		} else {
 			settings.ClipAppArgs = defaults.ClipAppArgs
 		}
 	}
