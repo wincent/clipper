@@ -161,8 +161,6 @@ Usage of ./clipper:
         address to bind to (shorthand) (default "127.0.0.1")
   -address string
         address to bind to (default "127.0.0.1")
-  -args string
-        arguments passed to clipboard executable
   -c string
         path to (JSON) config file (shorthand) (default "~/.clipper.json")
   -config string
@@ -171,6 +169,10 @@ Usage of ./clipper:
         program called to write to clipboard (shorthand) (default "pbcopy")
   -executable string
         program called to write to clipboard (default "pbcopy")
+  -f string
+        arguments passed to clipboard executable (shorthand)
+  -flags string
+        arguments passed to clipboard executable
   -h    show usage information (shorthand)
   -help
         show usage information
@@ -182,8 +184,6 @@ Usage of ./clipper:
         port to listen on (shorthand) (default 8377)
   -port int
         port to listen on (default 8377)
-  -r string
-        arguments passed to clipboard executable (shorthand)
 ```
 
 The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.
@@ -191,13 +191,10 @@ The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the de
 You can explicitly set these on the command line, or in the plist file if you are using Clipper as a launch agent. Clipper will also look for a configuration file in JSON format at `~/.clipper.json` (this location can be overidden with the `--config`/`-c` options) and read options from that. The following options are supported:
 
 - `address`
+- `executable`
+- `flags`
 - `logfile`
 - `port`
-
-Plus a couple of additional settings for which there are no command-line options:
-
-- `executable`: The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
-- `args`: The arguments to pass to the `executable` (defaults to `-selection clipboard` on Linux and nothing on macOS).
 
 Here is a sample `~/.clipper.json` config file:
 
@@ -227,6 +224,14 @@ See the "Security" section below for more.
 Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to  "~/Library/Logs/com.wincent.clipper.log".
 
 As an example, you could disable all logging by setting this to "/dev/null".
+
+### `--executable`
+
+The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
+
+### `--flags`
+
+The flags to pass to the `executable` (defaults to `-selection clipboard` on Linux and nothing on macOS).
 
 ## Configuring tmux
 

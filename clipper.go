@@ -47,7 +47,7 @@ type Options struct {
 	Config     string
 	Logfile    string
 	Executable string
-	Args       string
+	Flags      string
 	Port       int
 }
 
@@ -59,7 +59,7 @@ var showHelp bool
 
 func initFlags() {
 	const (
-		argsUsage       = "arguments passed to clipboard executable"
+		flagsUsage      = "arguments passed to clipboard executable"
 		configFileUsage = "path to (JSON) config file"
 		executableUsage = "program called to write to clipboard"
 		helpUsage       = "show usage information"
@@ -75,12 +75,12 @@ func initFlags() {
 	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
 	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
 	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Args, "r", defaults.Args, argsUsage+shorthand)
-	flag.StringVar(&flags.Args, "args", defaults.Args, argsUsage)
 	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
 	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
 	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage+shorthand)
 	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
+	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage+shorthand)
+	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
 	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
 	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
 }
@@ -93,12 +93,12 @@ func setDefaults() {
 		defaults.Config = "~/.config/clipper/clipper.json"
 		defaults.Logfile = "~/.config/clipper/logs/clipper.log"
 		defaults.Executable = "xclip"
-		defaults.Args = "-selection clipboard"
+		defaults.Flags = "-selection clipboard"
 	} else {
 		defaults.Config = "~/.clipper.json"
 		defaults.Logfile = "~/Library/Logs/com.wincent.clipper.log"
 		defaults.Executable = "pbcopy"
-		defaults.Args = ""
+		defaults.Flags = ""
 	}
 }
 
@@ -108,12 +108,12 @@ func mergeSettings() {
 	visitor := func(f *flag.Flag) {
 		if f.Name == "address" || f.Name == "a" {
 			settings.Address = flags.Address
-		} else if f.Name == "args" || f.Name == "r" {
-			settings.Args = flags.Args
 		} else if f.Name == "config" || f.Name == "c" {
 			settings.Config = flags.Config
 		} else if f.Name == "executable" || f.Name == "e" {
 			settings.Executable = flags.Executable
+		} else if f.Name == "flags" || f.Name == "f" {
+			settings.Flags = flags.Flags
 		} else if f.Name == "port" || f.Name == "p" {
 			settings.Port = flags.Port
 		} else if f.Name == "logfile" || f.Name == "l" {
@@ -172,11 +172,11 @@ func mergeSettings() {
 			settings.Executable = defaults.Executable
 		}
 	}
-	if settings.Args == "" {
-		if config.Args != "" {
-			settings.Args = config.Args
+	if settings.Flags == "" {
+		if config.Flags != "" {
+			settings.Flags = config.Flags
 		} else {
-			settings.Args = defaults.Args
+			settings.Flags = defaults.Flags
 		}
 	}
 }
@@ -288,9 +288,9 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	var args []string
-	if settings.Args != "" {
+	if settings.Flags != "" {
 		whitespace := regexp.MustCompile("\\s+")
-		args = whitespace.Split(strings.TrimSpace(settings.Args), -1)
+		args = whitespace.Split(strings.TrimSpace(settings.Flags), -1)
 	}
 	cmd := exec.Command(settings.Executable, args...)
 	stdin, err := cmd.StdinPipe()
