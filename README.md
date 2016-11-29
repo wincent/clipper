@@ -439,7 +439,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
-## master (not yet released)
+## 0.4 (28 November 2016)
 
 - Linux support via `xclip` instead of `pbcopy` (patch from Nelson Fernandez).
 - Added `--executable` and `--flags` options.
