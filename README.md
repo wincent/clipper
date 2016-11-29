@@ -376,9 +376,12 @@ This may be fine on a single-user machine, but when you start using `ssh -R` to 
 
 Most SSH systems are configured to use restrictive permissions on forwarded socket files (unless overridden; see the documentation for `StreamLocalBindMask` in `man ssh_config`), but you may wish to place the socket in a non-shared location like `~/.clipper.sock` rather than a shared one like `/tmp/clipper.sock` in any case.
 
-# Author
+# Authors
 
 Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
+Other contributors that have submitted patches include, in alphabetical order:
+
+  Nelson Fernandez
 
 # Development
 
@@ -416,6 +419,10 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # History
+
+## master (not yet released)
+
+- Linux support via `xclip` instead of `pbcopy` (patch from Nelson Fernandez).
 
 ## 0.3 (3 June 2016)
 
