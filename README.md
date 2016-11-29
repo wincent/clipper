@@ -2,11 +2,11 @@
 
 # Overview
 
-Clipper is an OS X "launch agent" that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
+Clipper is a macOS "launch agent" &mdash; or as a process that you can run as a daemon on Linux &mash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
 
 # At a glance
 
-    # Installation (using Homebrew; for non-Homebrew installs see below)
+    # macOS installation (using Homebrew; for non-Homebrew installs see below)
     brew install clipper # run this outside of a tmux session
 
     # Configuration for ~/.tmux.conf:
@@ -62,12 +62,11 @@ As a result, you often find yourself doing a tiresome sequence of:
 3. Enter Vim paste mode (`:set paste`)
 4. Paste the tmux copy buffer into the Vim buffer
 5. Write the file to a temporary location (eg. `:w /tmp/buff`)
-6. From the local machine, get the contents of the temporary file into the local
-   system clipboard with `ssh user@host cat /tmp/buff | pbcopy` or similar
+6. From the local machine, get the contents of the temporary file into the local system clipboard with `ssh user@host cat /tmp/buff | pbcopy` or similar
 
 # Solution
 
-OS X comes with a `pbcopy` tool that allows you to get stuff into the clipboard from the command-line. We've already seen this at work above. Basically, we can do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
+macOS comes with a `pbcopy` tool that allows you to get stuff into the clipboard from the command-line. `xclip` is an alternative that works on Linux. We've already seen this at work above. Basically, we can do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
 
 tmux has a couple of handy commands related to copy mode buffers, namely `save-buffer` and `copy-pipe`. With these, you can dump the contents of a buffer to standard out.
 
@@ -79,7 +78,7 @@ or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
 
     bind-key y run-shell "tmux save-buffer - | pbcopy"
 
-In practice, this won't work on versions of OS X prior to 10.10 "Yosemite" because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
+In practice, this won't work on versions of macOS prior to 10.10 "Yosemite" because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
 
 - http://developer.apple.com/library/mac/#technotes/tn2083/_index.html
 
@@ -179,11 +178,18 @@ Usage of ./clipper:
         port to listen on (default 8377)
 ```
 
+The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.
+
 You can explicitly set these on the command line, or in the plist file if you are using Clipper as a launch agent. Clipper will also look for a configuration file in JSON format at `~/.clipper.json` (this location can be overidden with the `--config`/`-c` options) and read options from that. The following options are supported:
 
 - `address`
 - `logfile`
 - `port`
+
+Plus a couple of additional settings for which there are no command-line options:
+
+- `clipapp`: The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
+- `clipappargs`: The arguments to pass to the `clipapp` executable (defaults to `-selection clipboard` on Linux and nothing on macOS).
 
 Here is a sample `~/.clipper.json` config file:
 
@@ -271,7 +277,7 @@ Again, assuming default address and port, we can use `-R` like this:
 
 Or, in the case of a UNIX domain socket at `~/.clipper.sock` and a sufficiently recent version of OpenSSH (version 6.7 or above):
 
-    # Assuming a local socket on OS X in $HOME at /Users/me/.clipper.sock
+    # Assuming a local socket on macOS in $HOME at /Users/me/.clipper.sock
     # and a remote Linux machine with $HOME is in /home rather than /Users:
     ssh -R/home/me/.clipper.sock:/Users/me/.clipper.sock \
         -o StreamLocalBindUnlink=yes \
