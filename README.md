@@ -156,7 +156,7 @@ To kill a manually-launched instance of Clipper, just hit Control+C in the termi
 As previously noted, Clipper supports a number of command line options, which you can see by running `clipper -h`:
 
 ```
-Usage of ./clipper:
+Usage of clipper:
   -a string
         address to bind to (default loopback interface)
   -address string
@@ -184,6 +184,9 @@ Usage of ./clipper:
         port to listen on (default 8377)
   -port int
         port to listen on (default 8377)
+  -v    show version information
+  -version
+        show version information
 ```
 
 The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.
