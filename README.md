@@ -161,10 +161,16 @@ Usage of ./clipper:
         address to bind to (shorthand) (default "127.0.0.1")
   -address string
         address to bind to (default "127.0.0.1")
+  -args string
+        arguments passed to clipboard executable
   -c string
         path to (JSON) config file (shorthand) (default "~/.clipper.json")
   -config string
         path to (JSON) config file (default "~/.clipper.json")
+  -e string
+        program called to write to clipboard (shorthand) (default "pbcopy")
+  -executable string
+        program called to write to clipboard (default "pbcopy")
   -h    show usage information (shorthand)
   -help
         show usage information
@@ -176,6 +182,8 @@ Usage of ./clipper:
         port to listen on (shorthand) (default 8377)
   -port int
         port to listen on (default 8377)
+  -r string
+        arguments passed to clipboard executable (shorthand)
 ```
 
 The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.

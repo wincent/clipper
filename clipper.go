@@ -59,24 +59,30 @@ var showHelp bool
 
 func initFlags() {
 	const (
+		argsUsage       = "arguments passed to clipboard executable"
+		configFileUsage = "path to (JSON) config file"
+		executableUsage = "program called to write to clipboard"
+		helpUsage       = "show usage information"
 		listenAddrUsage = "address to bind to"
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
-		configFileUsage = "path to (JSON) config file"
-		helpUsage       = "show usage information"
 		shorthand       = " (shorthand)"
 	)
 
-	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
-	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
-	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
-	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
-	flag.BoolVar(&showHelp, "help", false, helpUsage)
 	flag.BoolVar(&showHelp, "h", false, helpUsage+shorthand)
+	flag.BoolVar(&showHelp, "help", false, helpUsage)
+	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
+	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
+	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
+	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
+	flag.StringVar(&flags.Args, "r", defaults.Args, argsUsage+shorthand)
+	flag.StringVar(&flags.Args, "args", defaults.Args, argsUsage)
+	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
+	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
+	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage+shorthand)
+	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
+	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
+	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
 }
 
 func setDefaults() {
@@ -102,8 +108,12 @@ func mergeSettings() {
 	visitor := func(f *flag.Flag) {
 		if f.Name == "address" || f.Name == "a" {
 			settings.Address = flags.Address
+		} else if f.Name == "args" || f.Name == "r" {
+			settings.Args = flags.Args
 		} else if f.Name == "config" || f.Name == "c" {
 			settings.Config = flags.Config
+		} else if f.Name == "executable" || f.Name == "e" {
+			settings.Executable = flags.Executable
 		} else if f.Name == "port" || f.Name == "p" {
 			settings.Port = flags.Port
 		} else if f.Name == "logfile" || f.Name == "l" {
