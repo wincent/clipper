@@ -122,9 +122,20 @@ If you plan to use Clipper as a launch agent you'll need to put it somewhere the
 
 The following example shows how you would install the built Clipper executable to `/usr/local/bin/` after cloning the repo and performing a build. It also shows how you would set up Clipper as a launch agent and start it running:
 
+macOS example setup
+
     sudo cp clipper /usr/local/bin
     cp contrib/tcp-port/com.wincent.clipper.plist ~/Library/LaunchAgents/
     launchctl load -w -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
+
+Linux example setup
+
+    cp clipper ~/bin/
+    cp contrib/linux-systemd-service/cliper.service ~/.config/systemd/user
+    systemctl --user daemon-reload
+    systemctl --user enable clipper.service
+    systemctl --user start clipper.service
+
 
 Alternatively, if you'd like to run Clipper manually, you can do so with:
 
@@ -133,7 +144,7 @@ Alternatively, if you'd like to run Clipper manually, you can do so with:
               [--logfile=LOGFILE] \
               [--config=CONFIG_FILE]
 
-Note that both of these commands may fail to do the right thing inside of a tmux session. Run `launchctl` from outside of tmux, otherwise Clipper may find itself in the wrong execution context. Similarly, when running manually, either run Clipper outside of tmux or use the aforementioned `reattach-to-user-space` as a wrapper.
+Note that these commands may fail to do the right thing inside of a tmux session under macOS. Run `launchctl` from outside of tmux, otherwise Clipper may find itself in the wrong execution context. Similarly, when running manually, either run Clipper outside of tmux or use the aforementioned `reattach-to-user-space` as a wrapper.
 
 ## Uninstalling
 
@@ -146,6 +157,13 @@ A manual launch agent installation can be reversed with:
     launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
     rm ~/Library/LaunchAgents/com.wincent.clipper.plist
     sudo rm /usr/local/bin/clipper
+
+On Linux
+
+    systemctl --user stop clipper.service
+    systemctl --user disable clipper.service
+    rm ~/bin/clipper
+
 
 As before, note that you should probably only run `launchctl` outside of a tmux session.
 
