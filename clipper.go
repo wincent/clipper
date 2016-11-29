@@ -63,23 +63,22 @@ func initFlags() {
 		configFileUsage = "path to (JSON) config file"
 		executableUsage = "program called to write to clipboard"
 		helpUsage       = "show usage information"
-		listenAddrUsage = "address to bind to"
+		listenAddrUsage = "address to bind to (default loopback interface)"
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
-		shorthand       = " (shorthand)"
 	)
 
-	flag.BoolVar(&showHelp, "h", false, helpUsage+shorthand)
+	flag.BoolVar(&showHelp, "h", false, helpUsage)
 	flag.BoolVar(&showHelp, "help", false, helpUsage)
-	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
+	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage)
 	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
-	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
+	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage)
 	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
+	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage)
 	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage+shorthand)
+	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage)
 	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
-	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage+shorthand)
+	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage)
 	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
 	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
 	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)

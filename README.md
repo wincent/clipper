@@ -158,22 +158,22 @@ As previously noted, Clipper supports a number of command line options, which yo
 ```
 Usage of ./clipper:
   -a string
-        address to bind to (shorthand)
+        address to bind to (default loopback interface)
   -address string
-        address to bind to
+        address to bind to (default loopback interface)
   -c string
-        path to (JSON) config file (shorthand) (default "~/.clipper.json")
+        path to (JSON) config file (default "~/.clipper.json")
   -config string
         path to (JSON) config file (default "~/.clipper.json")
   -e string
-        program called to write to clipboard (shorthand) (default "pbcopy")
+        program called to write to clipboard (default "pbcopy")
   -executable string
         program called to write to clipboard (default "pbcopy")
   -f string
-        arguments passed to clipboard executable (shorthand)
+        arguments passed to clipboard executable
   -flags string
         arguments passed to clipboard executable
-  -h    show usage information (shorthand)
+  -h    show usage information
   -help
         show usage information
   -l string
@@ -181,7 +181,7 @@ Usage of ./clipper:
   -logfile string
         path to logfile (default "~/Library/Logs/com.wincent.clipper.log")
   -p int
-        port to listen on (shorthand) (default 8377)
+        port to listen on (default 8377)
   -port int
         port to listen on (default 8377)
 ```
