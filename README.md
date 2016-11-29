@@ -2,11 +2,11 @@
 
 # Overview
 
-Clipper is an OS X "launch agent" that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
+Clipper is a macOS "launch agent" &mdash; or as a process that you can run as a daemon on Linux &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
 
 # At a glance
 
-    # Installation (using Homebrew; for non-Homebrew installs see below)
+    # macOS installation (using Homebrew; for non-Homebrew installs see below)
     brew install clipper # run this outside of a tmux session
 
     # Configuration for ~/.tmux.conf:
@@ -62,12 +62,11 @@ As a result, you often find yourself doing a tiresome sequence of:
 3. Enter Vim paste mode (`:set paste`)
 4. Paste the tmux copy buffer into the Vim buffer
 5. Write the file to a temporary location (eg. `:w /tmp/buff`)
-6. From the local machine, get the contents of the temporary file into the local
-   system clipboard with `ssh user@host cat /tmp/buff | pbcopy` or similar
+6. From the local machine, get the contents of the temporary file into the local system clipboard with `ssh user@host cat /tmp/buff | pbcopy` or similar
 
 # Solution
 
-OS X comes with a `pbcopy` tool that allows you to get stuff into the clipboard from the command-line. We've already seen this at work above. Basically, we can do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
+macOS comes with a `pbcopy` tool that allows you to get stuff into the clipboard from the command-line. `xclip` is an alternative that works on Linux. We've already seen this at work above. Basically, we can do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
 
 tmux has a couple of handy commands related to copy mode buffers, namely `save-buffer` and `copy-pipe`. With these, you can dump the contents of a buffer to standard out.
 
@@ -79,7 +78,7 @@ or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
 
     bind-key y run-shell "tmux save-buffer - | pbcopy"
 
-In practice, this won't work on versions of OS X prior to 10.10 "Yosemite" because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
+In practice, this won't work on versions of macOS prior to 10.10 "Yosemite" because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
 
 - http://developer.apple.com/library/mac/#technotes/tn2083/_index.html
 
@@ -157,16 +156,24 @@ To kill a manually-launched instance of Clipper, just hit Control+C in the termi
 As previously noted, Clipper supports a number of command line options, which you can see by running `clipper -h`:
 
 ```
-Usage of ./clipper:
+Usage of clipper:
   -a string
-        address to bind to (shorthand) (default "127.0.0.1")
+        address to bind to (default loopback interface)
   -address string
-        address to bind to (default "127.0.0.1")
+        address to bind to (default loopback interface)
   -c string
-        path to (JSON) config file (shorthand) (default "~/.clipper.json")
+        path to (JSON) config file (default "~/.clipper.json")
   -config string
         path to (JSON) config file (default "~/.clipper.json")
-  -h    show usage information (shorthand)
+  -e string
+        program called to write to clipboard (default "pbcopy")
+  -executable string
+        program called to write to clipboard (default "pbcopy")
+  -f string
+        arguments passed to clipboard executable
+  -flags string
+        arguments passed to clipboard executable
+  -h    show usage information
   -help
         show usage information
   -l string
@@ -174,14 +181,21 @@ Usage of ./clipper:
   -logfile string
         path to logfile (default "~/Library/Logs/com.wincent.clipper.log")
   -p int
-        port to listen on (shorthand) (default 8377)
+        port to listen on (default 8377)
   -port int
         port to listen on (default 8377)
+  -v    show version information
+  -version
+        show version information
 ```
+
+The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.
 
 You can explicitly set these on the command line, or in the plist file if you are using Clipper as a launch agent. Clipper will also look for a configuration file in JSON format at `~/.clipper.json` (this location can be overidden with the `--config`/`-c` options) and read options from that. The following options are supported:
 
 - `address`
+- `executable`
+- `flags`
 - `logfile`
 - `port`
 
@@ -213,6 +227,14 @@ See the "Security" section below for more.
 Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to  "~/Library/Logs/com.wincent.clipper.log".
 
 As an example, you could disable all logging by setting this to "/dev/null".
+
+### `--executable`
+
+The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
+
+### `--flags`
+
+The flags to pass to the `executable` (defaults to `-selection clipboard` on Linux and nothing on macOS).
 
 ## Configuring tmux
 
@@ -271,7 +293,7 @@ Again, assuming default address and port, we can use `-R` like this:
 
 Or, in the case of a UNIX domain socket at `~/.clipper.sock` and a sufficiently recent version of OpenSSH (version 6.7 or above):
 
-    # Assuming a local socket on OS X in $HOME at /Users/me/.clipper.sock
+    # Assuming a local socket on macOS in $HOME at /Users/me/.clipper.sock
     # and a remote Linux machine with $HOME is in /home rather than /Users:
     ssh -R/home/me/.clipper.sock:/Users/me/.clipper.sock \
         -o StreamLocalBindUnlink=yes \
@@ -376,9 +398,12 @@ This may be fine on a single-user machine, but when you start using `ssh -R` to 
 
 Most SSH systems are configured to use restrictive permissions on forwarded socket files (unless overridden; see the documentation for `StreamLocalBindMask` in `man ssh_config`), but you may wish to place the socket in a non-shared location like `~/.clipper.sock` rather than a shared one like `/tmp/clipper.sock` in any case.
 
-# Author
+# Authors
 
 Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
+Other contributors that have submitted patches include, in alphabetical order:
+
+  Nelson Fernandez
 
 # Development
 
@@ -416,6 +441,12 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # History
+
+## 0.4 (28 November 2016)
+
+- Linux support via `xclip` instead of `pbcopy` (patch from Nelson Fernandez).
+- Added `--executable` and `--flags` options.
+- On dual-stack systems, listen on both IPv4 and IPv6 loopback interfaces by default.
 
 ## 0.3 (3 June 2016)
 

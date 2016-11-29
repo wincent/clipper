@@ -36,67 +36,82 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"syscall"
 )
 
 type Options struct {
-	Address     string
-	Config      string
-	Logfile     string
-	ClipApp     string
-	ClipAppArgs string
-	Port        int
+	Address    string
+	Config     string
+	Logfile    string
+	Executable string
+	Flags      string
+	Port       int
 }
 
+var version = "unknown"
+
 var config Options   // Options read from disk.
+var defaults Options // Default options.
 var flags Options    // Options set via commandline flags.
-var defaults Options // default Options
 var settings Options // Result of merging: flags > config > defaults.
 var showHelp bool
+var showVersion bool
+
+func printVersion() {
+	fmt.Fprintf(os.Stderr, "clipper version: %s (%s)\n", version, runtime.GOOS)
+}
 
 func initFlags() {
 	const (
-		listenAddrUsage = "address to bind to"
+		flagsUsage      = "arguments passed to clipboard executable"
+		configFileUsage = "path to (JSON) config file"
+		executableUsage = "program called to write to clipboard"
+		helpUsage       = "show usage information"
+		listenAddrUsage = "address to bind to (default loopback interface)"
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
-		configFileUsage = "path to (JSON) config file"
-		helpUsage       = "show usage information"
-		shorthand       = " (shorthand)"
+		versionUsage    = "show version information"
 	)
 
-	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
-	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
-	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
-	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
+	flag.BoolVar(&showHelp, "h", false, helpUsage)
 	flag.BoolVar(&showHelp, "help", false, helpUsage)
-	flag.BoolVar(&showHelp, "h", false, helpUsage+shorthand)
+	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage)
+	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
+	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage)
+	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
+	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage)
+	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
+	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage)
+	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
+	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage)
+	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
+	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
+	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
+	flag.BoolVar(&showVersion, "v", false, versionUsage)
+	flag.BoolVar(&showVersion, "version", false, versionUsage)
 }
 
 func setDefaults() {
-	defaults.Address = "127.0.0.1"
+	defaults.Address = "" // IPv4/IPv6 loopback.
 	defaults.Port = 8377
 
 	if runtime.GOOS == "linux" {
 		defaults.Config = "~/.config/clipper/clipper.json"
 		defaults.Logfile = "~/.config/clipper/logs/clipper.log"
-		defaults.ClipApp = "xclip"
-		defaults.ClipAppArgs = "-selection clipboard"
+		defaults.Executable = "xclip"
+		defaults.Flags = "-selection clipboard"
 	} else {
 		defaults.Config = "~/.clipper.json"
 		defaults.Logfile = "~/Library/Logs/com.wincent.clipper.log"
-		defaults.ClipApp = "pbcopy"
-		defaults.ClipAppArgs = ""
+		defaults.Executable = "pbcopy"
+		defaults.Flags = ""
 	}
 }
 
 func mergeSettings() {
-
 	// Detect which flags were passed in explicitly, and set them immediately.
 	// This is used below to determine response to a missing config file.
 	visitor := func(f *flag.Flag) {
@@ -104,6 +119,10 @@ func mergeSettings() {
 			settings.Address = flags.Address
 		} else if f.Name == "config" || f.Name == "c" {
 			settings.Config = flags.Config
+		} else if f.Name == "executable" || f.Name == "e" {
+			settings.Executable = flags.Executable
+		} else if f.Name == "flags" || f.Name == "f" {
+			settings.Flags = flags.Flags
 		} else if f.Name == "port" || f.Name == "p" {
 			settings.Port = flags.Port
 		} else if f.Name == "logfile" || f.Name == "l" {
@@ -155,13 +174,18 @@ func mergeSettings() {
 			settings.Port = defaults.Port
 		}
 	}
-	if settings.ClipApp == "" {
-		if config.ClipApp != "" {
-			settings.ClipApp = config.ClipApp
-			settings.ClipAppArgs = config.ClipAppArgs
+	if settings.Executable == "" {
+		if config.Executable != "" {
+			settings.Executable = config.Executable
 		} else {
-			settings.ClipApp = defaults.ClipApp
-			settings.ClipAppArgs = defaults.ClipAppArgs
+			settings.Executable = defaults.Executable
+		}
+	}
+	if settings.Flags == "" {
+		if config.Flags != "" {
+			settings.Flags = config.Flags
+		} else {
+			settings.Flags = defaults.Flags
 		}
 	}
 }
@@ -170,9 +194,9 @@ func main() {
 	// Set this up before we even know where our logfile is, in case we have to
 	// bail early and print something to stderr.
 	log.SetPrefix("clipper: ")
-	// set default values per GOOS
+	// Set default values per GOOS.
 	setDefaults()
-	// setup flags subsystem
+	// Setup flags subsystem.
 	initFlags()
 
 	flag.Parse()
@@ -182,11 +206,16 @@ func main() {
 		os.Exit(1)
 	}
 	if showHelp {
+		printVersion()
 		flag.Usage()
 		os.Exit(0)
 	}
+	if showVersion {
+		printVersion()
+		os.Exit(0)
+	}
 
-	// merge flags -> config -> default
+	// Merge flags -> config -> defaults.
 	mergeSettings()
 
 	expandedPath := expandPath(settings.Logfile)
@@ -197,7 +226,7 @@ func main() {
 	defer outfile.Close()
 	log.SetOutput(outfile)
 
-	if _, err := exec.LookPath(settings.ClipApp); err != nil {
+	if _, err := exec.LookPath(settings.Executable); err != nil {
 		log.Fatal(err)
 	}
 
@@ -209,11 +238,15 @@ func main() {
 		addr = settings.Address
 	}
 	if strings.HasPrefix(addr, "/") {
-		log.Print("Starting UNIX domain socket server at ", addr)
 		listenType = "unix"
+		log.Print("Starting UNIX domain socket server at ", addr)
 	} else {
-		log.Print("Starting TCP server on ", addr)
 		listenType = "tcp"
+		if addr == "" {
+			log.Print("Starting TCP server on loopback interface")
+		} else {
+			log.Print("Starting TCP server on ", addr)
+		}
 		addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
 	}
 	listener, err := net.Listen(listenType, addr)
@@ -273,10 +306,11 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	var args []string
-	if settings.ClipAppArgs != "" {
-		args = strings.Split(settings.ClipAppArgs, " ")
+	if settings.Flags != "" {
+		whitespace := regexp.MustCompile("\\s+")
+		args = whitespace.Split(strings.TrimSpace(settings.Flags), -1)
 	}
-	cmd := exec.Command(settings.ClipApp, args...)
+	cmd := exec.Command(settings.Executable, args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Printf("[ERROR] pipe init: %v\n", err)
