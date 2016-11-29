@@ -36,6 +36,7 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"strings"
 	"syscall"
@@ -273,7 +274,8 @@ func handleConnection(conn net.Conn) {
 
 	var args []string
 	if settings.ClipAppArgs != "" {
-		args = strings.Split(settings.ClipAppArgs, " ")
+		whitespace := regexp.MustCompile("\\s+")
+		args = whitespace.Split(strings.TrimSpace(settings.ClipAppArgs), -1)
 	}
 	cmd := exec.Command(settings.ClipApp, args...)
 	stdin, err := cmd.StdinPipe()
