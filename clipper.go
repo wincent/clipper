@@ -51,11 +51,18 @@ type Options struct {
 	Port       int
 }
 
+var version = "unknown"
+
 var config Options   // Options read from disk.
 var defaults Options // Default options.
 var flags Options    // Options set via commandline flags.
 var settings Options // Result of merging: flags > config > defaults.
 var showHelp bool
+var showVersion bool
+
+func printVersion() {
+	fmt.Fprintf(os.Stderr, "clipper version: %s (%s)\n", version, runtime.GOOS)
+}
 
 func initFlags() {
 	const (
@@ -66,6 +73,7 @@ func initFlags() {
 		listenAddrUsage = "address to bind to (default loopback interface)"
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
+		versionUsage    = "show version information"
 	)
 
 	flag.BoolVar(&showHelp, "h", false, helpUsage)
@@ -82,6 +90,8 @@ func initFlags() {
 	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
 	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
 	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
+	flag.BoolVar(&showVersion, "v", false, versionUsage)
+	flag.BoolVar(&showVersion, "version", false, versionUsage)
 }
 
 func setDefaults() {
@@ -196,7 +206,12 @@ func main() {
 		os.Exit(1)
 	}
 	if showHelp {
+		printVersion()
 		flag.Usage()
+		os.Exit(0)
+	}
+	if showVersion {
+		printVersion()
 		os.Exit(0)
 	}
 
