@@ -188,8 +188,8 @@ You can explicitly set these on the command line, or in the plist file if you ar
 
 Plus a couple of additional settings for which there are no command-line options:
 
-- `clipapp`: The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
-- `clipappargs`: The arguments to pass to the `clipapp` executable (defaults to `-selection clipboard` on Linux and nothing on macOS).
+- `executable`: The executable used to place content on the clipboard (defaults to `pbcopy` on macOS and `xclip` on Linux).
+- `args`: The arguments to pass to the `executable` (defaults to `-selection clipboard` on Linux and nothing on macOS).
 
 Here is a sample `~/.clipper.json` config file:
 

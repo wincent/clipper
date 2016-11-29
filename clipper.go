@@ -43,12 +43,12 @@ import (
 )
 
 type Options struct {
-	Address     string
-	Config      string
-	Logfile     string
-	ClipApp     string
-	ClipAppArgs string
-	Port        int
+	Address    string
+	Config     string
+	Logfile    string
+	Executable string
+	Args       string
+	Port       int
 }
 
 var config Options   // Options read from disk.
@@ -86,13 +86,13 @@ func setDefaults() {
 	if runtime.GOOS == "linux" {
 		defaults.Config = "~/.config/clipper/clipper.json"
 		defaults.Logfile = "~/.config/clipper/logs/clipper.log"
-		defaults.ClipApp = "xclip"
-		defaults.ClipAppArgs = "-selection clipboard"
+		defaults.Executable = "xclip"
+		defaults.Args = "-selection clipboard"
 	} else {
 		defaults.Config = "~/.clipper.json"
 		defaults.Logfile = "~/Library/Logs/com.wincent.clipper.log"
-		defaults.ClipApp = "pbcopy"
-		defaults.ClipAppArgs = ""
+		defaults.Executable = "pbcopy"
+		defaults.Args = ""
 	}
 }
 
@@ -155,18 +155,18 @@ func mergeSettings() {
 			settings.Port = defaults.Port
 		}
 	}
-	if settings.ClipApp == "" {
-		if config.ClipApp != "" {
-			settings.ClipApp = config.ClipApp
+	if settings.Executable == "" {
+		if config.Executable != "" {
+			settings.Executable = config.Executable
 		} else {
-			settings.ClipApp = defaults.ClipApp
+			settings.Executable = defaults.Executable
 		}
 	}
-	if settings.ClipAppArgs == "" {
-		if config.ClipAppArgs != "" {
-			settings.ClipAppArgs = config.ClipAppArgs
+	if settings.Args == "" {
+		if config.Args != "" {
+			settings.Args = config.Args
 		} else {
-			settings.ClipAppArgs = defaults.ClipAppArgs
+			settings.Args = defaults.Args
 		}
 	}
 }
@@ -202,7 +202,7 @@ func main() {
 	defer outfile.Close()
 	log.SetOutput(outfile)
 
-	if _, err := exec.LookPath(settings.ClipApp); err != nil {
+	if _, err := exec.LookPath(settings.Executable); err != nil {
 		log.Fatal(err)
 	}
 
@@ -278,11 +278,11 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	var args []string
-	if settings.ClipAppArgs != "" {
+	if settings.Args != "" {
 		whitespace := regexp.MustCompile("\\s+")
-		args = whitespace.Split(strings.TrimSpace(settings.ClipAppArgs), -1)
+		args = whitespace.Split(strings.TrimSpace(settings.Args), -1)
 	}
-	cmd := exec.Command(settings.ClipApp, args...)
+	cmd := exec.Command(settings.Executable, args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Printf("[ERROR] pipe init: %v\n", err)
