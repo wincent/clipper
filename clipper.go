@@ -36,70 +36,73 @@ import (
 	"os/signal"
 	"os/user"
 	"path/filepath"
+	"regexp"
+	"runtime"
 	"strings"
 	"syscall"
 )
 
 type Options struct {
-	Address string
-	Config  string
-	Logfile string
-	Port    int
+	Address    string
+	Config     string
+	Logfile    string
+	Executable string
+	Flags      string
+	Port       int
 }
 
-var config Options // Options read from disk.
-var flags Options  // Options set via commandline flags.
-var defaults = Options{
-	Address: "127.0.0.1",
-	Config:  "~/.clipper.json",
-	Logfile: "~/Library/Logs/com.wincent.clipper.log",
-	Port:    8377,
-}
+var config Options   // Options read from disk.
+var defaults Options // Default options.
+var flags Options    // Options set via commandline flags.
 var settings Options // Result of merging: flags > config > defaults.
 var showHelp bool
 
-const (
-	pbcopy = "pbcopy"
-)
-
-func init() {
+func initFlags() {
 	const (
+		flagsUsage      = "arguments passed to clipboard executable"
+		configFileUsage = "path to (JSON) config file"
+		executableUsage = "program called to write to clipboard"
+		helpUsage       = "show usage information"
 		listenAddrUsage = "address to bind to"
 		listenPortUsage = "port to listen on"
 		logFileUsage    = "path to logfile"
-		configFileUsage = "path to (JSON) config file"
-		helpUsage       = "show usage information"
 		shorthand       = " (shorthand)"
 	)
 
-	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
-	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
-	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
-	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
-	flag.BoolVar(&showHelp, "help", false, helpUsage)
 	flag.BoolVar(&showHelp, "h", false, helpUsage+shorthand)
+	flag.BoolVar(&showHelp, "help", false, helpUsage)
+	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage+shorthand)
+	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
+	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage+shorthand)
+	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
+	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage+shorthand)
+	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
+	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage+shorthand)
+	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
+	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage+shorthand)
+	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
+	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
+	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
 }
 
-func main() {
-	// Set this up before we even know where our logfile is, in case we have to
-	// bail early and print something to stderr.
-	log.SetPrefix("clipper: ")
+func setDefaults() {
+	defaults.Address = "127.0.0.1"
+	defaults.Port = 8377
 
-	flag.Parse()
-	if flag.NArg() != 0 {
-		// Additional command-line options not supported.
-		flag.Usage()
-		os.Exit(1)
+	if runtime.GOOS == "linux" {
+		defaults.Config = "~/.config/clipper/clipper.json"
+		defaults.Logfile = "~/.config/clipper/logs/clipper.log"
+		defaults.Executable = "xclip"
+		defaults.Flags = "-selection clipboard"
+	} else {
+		defaults.Config = "~/.clipper.json"
+		defaults.Logfile = "~/Library/Logs/com.wincent.clipper.log"
+		defaults.Executable = "pbcopy"
+		defaults.Flags = ""
 	}
-	if showHelp {
-		flag.Usage()
-		os.Exit(0)
-	}
+}
 
+func mergeSettings() {
 	// Detect which flags were passed in explicitly, and set them immediately.
 	// This is used below to determine response to a missing config file.
 	visitor := func(f *flag.Flag) {
@@ -107,6 +110,10 @@ func main() {
 			settings.Address = flags.Address
 		} else if f.Name == "config" || f.Name == "c" {
 			settings.Config = flags.Config
+		} else if f.Name == "executable" || f.Name == "e" {
+			settings.Executable = flags.Executable
+		} else if f.Name == "flags" || f.Name == "f" {
+			settings.Flags = flags.Flags
 		} else if f.Name == "port" || f.Name == "p" {
 			settings.Port = flags.Port
 		} else if f.Name == "logfile" || f.Name == "l" {
@@ -116,10 +123,10 @@ func main() {
 	flag.Visit(visitor)
 
 	expandedPath := expandPath(flags.Config)
+
 	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
 		if settings.Config != "" {
-			// User explicitly asked for a config file and it wasn't there; fail
-			// hard.
+			// User explicitly asked for a config file and it wasn't there; fail hard.
 			log.Fatal(err)
 		} else {
 			// Default config file missing; just warn.
@@ -158,8 +165,46 @@ func main() {
 			settings.Port = defaults.Port
 		}
 	}
+	if settings.Executable == "" {
+		if config.Executable != "" {
+			settings.Executable = config.Executable
+		} else {
+			settings.Executable = defaults.Executable
+		}
+	}
+	if settings.Flags == "" {
+		if config.Flags != "" {
+			settings.Flags = config.Flags
+		} else {
+			settings.Flags = defaults.Flags
+		}
+	}
+}
 
-	expandedPath = expandPath(settings.Logfile)
+func main() {
+	// Set this up before we even know where our logfile is, in case we have to
+	// bail early and print something to stderr.
+	log.SetPrefix("clipper: ")
+	// Set default values per GOOS.
+	setDefaults()
+	// Setup flags subsystem.
+	initFlags()
+
+	flag.Parse()
+	if flag.NArg() != 0 {
+		// Additional command-line options not supported.
+		flag.Usage()
+		os.Exit(1)
+	}
+	if showHelp {
+		flag.Usage()
+		os.Exit(0)
+	}
+
+	// Merge flags -> config -> defaults.
+	mergeSettings()
+
+	expandedPath := expandPath(settings.Logfile)
 	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
@@ -167,7 +212,7 @@ func main() {
 	defer outfile.Close()
 	log.SetOutput(outfile)
 
-	if _, err := exec.LookPath(pbcopy); err != nil {
+	if _, err := exec.LookPath(settings.Executable); err != nil {
 		log.Fatal(err)
 	}
 
@@ -242,25 +287,31 @@ func handleConnection(conn net.Conn) {
 	defer log.Print("Connection closed")
 	defer conn.Close()
 
-	cmd := exec.Command(pbcopy)
+	var args []string
+	if settings.Flags != "" {
+		whitespace := regexp.MustCompile("\\s+")
+		args = whitespace.Split(strings.TrimSpace(settings.Flags), -1)
+	}
+	cmd := exec.Command(settings.Executable, args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
-		log.Print(err)
+		log.Printf("[ERROR] pipe init: %v\n", err)
 		return
 	}
+
 	if err = cmd.Start(); err != nil {
-		log.Print(err)
+		log.Printf("[ERROR] process start: %v\n", err)
 		return
 	}
 
 	if copied, err := io.Copy(stdin, conn); err != nil {
-		log.Print(err)
+		log.Printf("[ERROR] pipe copy: %v\n", err)
 	} else {
 		log.Print("Echoed ", copied, " bytes")
 	}
 	stdin.Close()
 
 	if err = cmd.Wait(); err != nil {
-		log.Print(err)
+		log.Printf("[ERROR] wait: %v\n", err)
 	}
 }

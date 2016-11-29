@@ -8,6 +8,14 @@ help:
 version:
 	@if [ "$$VERSION" = "" ]; then echo "VERSION not set"; exit 1; fi
 
+clipper_linux:
+	GOOS=linux GOARCH=amd64 go build -o clipper_linux clipper.go
+
+clipper_darwin:
+	GOOS=darwin GOARCH=amd64 go build -o clipper_darwin clipper.go
+
+clipper_all: clipper_linux clipper_darwin
+
 clipper: clipper.go
 	go build $^
 
@@ -31,3 +39,4 @@ all: version build tag archive upload
 .PHONY: clean
 clean:
 	rm -f clipper clipper-*.zip
+	rm -f clipper_*
