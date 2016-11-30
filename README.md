@@ -123,7 +123,7 @@ If you plan to use Clipper as a launch agent you'll need to put it somewhere the
 The following example shows how you would install the built Clipper executable to `/usr/local/bin/` after cloning the repo and performing a build. It also shows how you would set up Clipper as a launch agent and start it running:
 
     sudo cp clipper /usr/local/bin
-    cp contrib/tcp-port/com.wincent.clipper.plist ~/Library/LaunchAgents/
+    cp contrib/darwin/tcp-port/com.wincent.clipper.plist ~/Library/LaunchAgents/
     launchctl load -w -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
 
 Alternatively, if you'd like to run Clipper manually, you can do so with:
