@@ -131,7 +131,7 @@ macOS example setup
 Linux example setup
 
     cp clipper ~/bin/
-    cp contrib/linux-systemd-service/cliper.service ~/.config/systemd/user
+    cp contrib/linux/systemd-service/cliper.service ~/.config/systemd/user
     systemctl --user daemon-reload
     systemctl --user enable clipper.service
     systemctl --user start clipper.service
