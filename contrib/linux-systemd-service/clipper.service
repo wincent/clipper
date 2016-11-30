@@ -2,11 +2,13 @@
 Description=Clipper ~ Clipboard proxy
 
 [Service]
-ExecStart=/home/nelson/bin/clipper
+Environment=DISPLAY=:0
+ExecStart=/usr/local/bin/clipper
 Restart=always
-RestartSec=10                       # Restart service after 10 seconds if node service crashes
-StandardOutput=syslog               # Output to syslog
-StandardError=syslog                # Output to syslog
+# Restart service after 10 seconds if service crashes
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
 SyslogIdentifier=clipper
 
 [Install]
