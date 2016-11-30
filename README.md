@@ -130,12 +130,11 @@ macOS example setup
 
 Linux example setup
 
-    cp clipper ~/bin/
-    cp contrib/linux/systemd-service/cliper.service ~/.config/systemd/user
+    sudo cp clipper /usr/local/bin
+    cp contrib/linux/systemd-service/clipper.service ~/.config/systemd/user
     systemctl --user daemon-reload
     systemctl --user enable clipper.service
     systemctl --user start clipper.service
-
 
 Alternatively, if you'd like to run Clipper manually, you can do so with:
 
@@ -162,8 +161,7 @@ On Linux
 
     systemctl --user stop clipper.service
     systemctl --user disable clipper.service
-    rm ~/bin/clipper
-
+    sudo rm /usr/local/bin/clipper
 
 As before, note that you should probably only run `launchctl` outside of a tmux session.
 
