@@ -2,7 +2,7 @@
 
 # Overview
 
-Clipper is a macOS "launch agent" &mdash; or as a process that you can run as a daemon on Linux &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
+Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
 
 # At a glance
 
