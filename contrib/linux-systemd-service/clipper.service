@@ -1,0 +1,15 @@
+[Unit]
+Description=Clipper ~ Clipboard proxy
+
+[Service]
+Environment=DISPLAY=:0
+ExecStart=/usr/local/bin/clipper
+Restart=always
+# Restart service after 10 seconds if service crashes
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=clipper
+
+[Install]
+WantedBy=basic.target
