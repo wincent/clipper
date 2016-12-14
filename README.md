@@ -458,6 +458,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
+## 0.4.1 (13 December 2016)
+
+- Create socket with user-only permissions, for better security.
+
 ## 0.4 (28 November 2016)
 
 - Linux support via `xclip` instead of `pbcopy` (patch from Nelson Fernandez).

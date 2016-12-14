@@ -191,6 +191,7 @@ func mergeSettings() {
 }
 
 func main() {
+	syscall.Umask(0077)
 	// Set this up before we even know where our logfile is, in case we have to
 	// bail early and print something to stderr.
 	log.SetPrefix("clipper: ")
