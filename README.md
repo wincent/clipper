@@ -155,7 +155,7 @@ A Homebrew installation can be reversed with:
 
 A manual launch agent installation can be reversed with the following (and as before, note that you should probably only run `launchctl` outside of a tmux session):
 
-    launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
+    launchctl unload -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
     rm ~/Library/LaunchAgents/com.wincent.clipper.plist
     sudo rm /usr/local/bin/clipper
 
