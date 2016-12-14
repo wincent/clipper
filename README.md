@@ -78,7 +78,7 @@ or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
 
     bind-key y run-shell "tmux save-buffer - | pbcopy"
 
-In practice, this won't work on versions of macOS prior to 10.10 "Yosemite" because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
+In practice, this won't work on versions of macOS prior to 10.10 "Yosemite" or after 10.11 "El Capitan" &mdash; these was a brief lapse during those versions where it did work &mdash; because tmux uses the `daemon(3)` system call, which ends up putting it in a different execution context from which it cannot interact with the system clipboard. For (much) more detail, see:
 
 - http://developer.apple.com/library/mac/#technotes/tn2083/_index.html
 
