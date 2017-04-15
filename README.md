@@ -228,7 +228,7 @@ Note that explicit command line options — including options supplied via a pli
 
 ### `--address`
 
-Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost". This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have Clipper create a UNIX domain socket at that location and listen on that instead.
+Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost", and listens on both IPv4 and IPv6 addresses, when available. This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have Clipper create a UNIX domain socket at that location and listen on that instead (for better security: see "Security" below for more). Or perhaps you would like to *only* listen on IPv4 *or* IPv6, in which case you would use "127.0.0.1" or "[::1]" respectively (the square brackets around the IPv6 address are needed by the Go networking libraries in order to disambiguate the colons in the address from colons used to separate it from the port number). Note that if you see an error of the form "too many colons in address", it is likely that you have forgotten to wrap the IPv6 address in surrounding brackets.
 
 ### `--port`
 
@@ -457,6 +457,10 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # History
+
+## 0.4.2 (14 April 2017)
+
+- Fix binding to all interfaces instead of just the loopback interface when no address is provided ([#9](https://github.com/wincent/clipper/issues/9)).
 
 ## 0.4.1 (13 December 2016)
 
