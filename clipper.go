@@ -232,39 +232,61 @@ func main() {
 	}
 
 	var addr string
-	var listenType string
+	var listeners []net.Listener
 	if isPath(settings.Address) {
 		addr = expandPath(settings.Address)
 	} else {
 		addr = settings.Address
 	}
 	if strings.HasPrefix(addr, "/") {
-		listenType = "unix"
 		log.Print("Starting UNIX domain socket server at ", addr)
+		listener, err := net.Listen("unix", addr)
+		if err != nil {
+			log.Fatal(err)
+		}
+		listeners = append(listeners, listener)
 	} else {
-		listenType = "tcp"
 		if addr == "" {
 			log.Print("Starting TCP server on loopback interface")
+			addr = fmt.Sprintf("%s:%d", "127.0.0.1", settings.Port)
+			listener, err := net.Listen("tcp4", addr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			listeners = append(listeners, listener)
+			addr = fmt.Sprintf("%s:%d", "[::1]", settings.Port)
+			listener, err = net.Listen("tcp6", addr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			listeners = append(listeners, listener)
 		} else {
 			log.Print("Starting TCP server on ", addr)
+			addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
+			listener, err := net.Listen("tcp", addr)
+			if err != nil {
+				log.Fatal(err)
+			}
+			listeners = append(listeners, listener)
 		}
-		addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
 	}
-	listener, err := net.Listen(listenType, addr)
-	if err != nil {
-		log.Fatal(err)
+	for i := range listeners {
+		defer listeners[i].Close()
 	}
-	defer listener.Close()
 
 	go func() {
-		for {
-			conn, err := listener.Accept()
-			if err != nil {
-				log.Print(err)
-				return
-			}
+		for i := range listeners {
+			go func(listener net.Listener) {
+				for {
+					conn, err := listener.Accept()
+					if err != nil {
+						log.Print(err)
+						return
+					}
 
-			go handleConnection(conn)
+					go handleConnection(conn)
+				}
+			}(listeners[i])
 		}
 	}()
 
