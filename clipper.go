@@ -255,8 +255,16 @@ func main() {
 	var listenerCount = 0
 	for i := range listeners {
 		if listeners[i] != nil {
+			listenerCount++
+		}
+	}
+	if listenerCount == 0 {
+		log.Fatal("Failed to establish a listener")
+	}
+
+	for i := range listeners {
+		if listeners[i] != nil {
 			defer listeners[i].Close()
-			listenerCount += 1
 			go func(listener net.Listener) {
 				for {
 					conn, err := listener.Accept()
@@ -269,9 +277,6 @@ func main() {
 				}
 			}(listeners[i])
 		}
-	}
-	if (listenerCount == 0) {
-		log.Fatal("Failed to establish a listener")
 	}
 
 	// Need to catch signals in order for `defer`-ed clean-up items to run.
