@@ -274,21 +274,19 @@ func main() {
 		defer listeners[i].Close()
 	}
 
-	go func() {
-		for i := range listeners {
-			go func(listener net.Listener) {
-				for {
-					conn, err := listener.Accept()
-					if err != nil {
-						log.Print(err)
-						return
-					}
-
-					go handleConnection(conn)
+	for i := range listeners {
+		go func(listener net.Listener) {
+			for {
+				conn, err := listener.Accept()
+				if err != nil {
+					log.Print(err)
+					return
 				}
-			}(listeners[i])
-		}
-	}()
+
+				go handleConnection(conn)
+			}
+		}(listeners[i])
+	}
 
 	// Need to catch signals in order for `defer`-ed clean-up items to run.
 	c := make(chan os.Signal, 1)
