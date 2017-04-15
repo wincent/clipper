@@ -252,7 +252,7 @@ func main() {
 		}
 	}
 
-	listeners = filter(&listeners, func(l net.Listener) bool {
+	listeners = filter(listeners, func(l net.Listener) bool {
 		return l != nil
 	})
 	if len(listeners) == 0 {
@@ -294,11 +294,11 @@ func listen(listenType string, addr string, port int) net.Listener {
 	return listener
 }
 
-func filter(ls *[]net.Listener, fn func(net.Listener) bool) []net.Listener {
+func filter(ls []net.Listener, fn func(net.Listener) bool) []net.Listener {
 	var out []net.Listener
-	for i := range *ls {
-		if fn((*ls)[i]) {
-			out = append(out, (*ls)[i])
+	for i := range ls {
+		if fn(ls[i]) {
+			out = append(out, ls[i])
 		}
 	}
 	return out
