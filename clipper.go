@@ -240,34 +240,15 @@ func main() {
 	}
 	if strings.HasPrefix(addr, "/") {
 		log.Print("Starting UNIX domain socket server at ", addr)
-		listener, err := net.Listen("unix", addr)
-		if err != nil {
-			log.Fatal(err)
-		}
-		listeners = append(listeners, listener)
+		listeners = append(listeners, listen("unix", addr, -1))
 	} else {
 		if addr == "" {
 			log.Print("Starting TCP server on loopback interface")
-			addr = fmt.Sprintf("%s:%d", "127.0.0.1", settings.Port)
-			listener, err := net.Listen("tcp4", addr)
-			if err != nil {
-				log.Fatal(err)
-			}
-			listeners = append(listeners, listener)
-			addr = fmt.Sprintf("%s:%d", "[::1]", settings.Port)
-			listener, err = net.Listen("tcp6", addr)
-			if err != nil {
-				log.Fatal(err)
-			}
-			listeners = append(listeners, listener)
+			listeners = append(listeners, listen("tcp4", "127.0.0.1", settings.Port))
+			listeners = append(listeners, listen("tcp6", "[::1]", settings.Port))
 		} else {
 			log.Print("Starting TCP server on ", addr)
-			addr = fmt.Sprintf("%s:%d", settings.Address, settings.Port)
-			listener, err := net.Listen("tcp", addr)
-			if err != nil {
-				log.Fatal(err)
-			}
-			listeners = append(listeners, listener)
+			listeners = append(listeners, listen("tcp", settings.Address, settings.Port))
 		}
 	}
 
@@ -291,6 +272,17 @@ func main() {
 	signal.Notify(c, os.Interrupt, os.Kill, syscall.SIGTERM)
 	sig := <-c
 	log.Print("Got signal ", sig)
+}
+
+func listen(listenType string, addr string, port int) net.Listener {
+	if port >= 0 {
+		addr = fmt.Sprintf("%s:%d", addr, port)
+	}
+	listener, err := net.Listen(listenType, addr)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return listener
 }
 
 // Returns true for things which look like paths (start with "~", "." or "/").
