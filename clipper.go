@@ -252,19 +252,26 @@ func main() {
 		}
 	}
 
+	var listenerCount = 0
 	for i := range listeners {
-		defer listeners[i].Close()
-		go func(listener net.Listener) {
-			for {
-				conn, err := listener.Accept()
-				if err != nil {
-					log.Print(err)
-					return
-				}
+		if listeners[i] != nil {
+			defer listeners[i].Close()
+			listenerCount += 1
+			go func(listener net.Listener) {
+				for {
+					conn, err := listener.Accept()
+					if err != nil {
+						log.Print(err)
+						return
+					}
 
-				go handleConnection(conn)
-			}
-		}(listeners[i])
+					go handleConnection(conn)
+				}
+			}(listeners[i])
+		}
+	}
+	if (listenerCount == 0) {
+		log.Fatal("Failed to establish a listener")
 	}
 
 	// Need to catch signals in order for `defer`-ed clean-up items to run.
@@ -280,7 +287,7 @@ func listen(listenType string, addr string, port int) net.Listener {
 	}
 	listener, err := net.Listen(listenType, addr)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
 	}
 	return listener
 }
