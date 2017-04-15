@@ -252,13 +252,10 @@ func main() {
 		}
 	}
 
-	var listenerCount = 0
-	for i := range listeners {
-		if listeners[i] != nil {
-			listenerCount++
-		}
-	}
-	if listenerCount == 0 {
+	listeners = filter(&listeners, func(l net.Listener) bool {
+		return l != nil
+	})
+	if len(listeners) == 0 {
 		log.Fatal("Failed to establish a listener")
 	}
 
@@ -295,6 +292,16 @@ func listen(listenType string, addr string, port int) net.Listener {
 		log.Print(err)
 	}
 	return listener
+}
+
+func filter(ls *[]net.Listener, fn func(net.Listener) bool) []net.Listener {
+	var out []net.Listener
+	for i := range *ls {
+		if fn((*ls)[i]) {
+			out = append(out, (*ls)[i])
+		}
+	}
+	return out
 }
 
 // Returns true for things which look like paths (start with "~", "." or "/").
