@@ -24,7 +24,7 @@ clipper: clipper.go
 build: clipper
 
 tag: version
-	git tag -s $$VERSION -m "$$VERSION release"
+	git tag -s ${VERSION} -m "${VERSION} release"
 
 archive: clipper-${VERSION}.zip
 
