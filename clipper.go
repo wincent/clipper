@@ -270,11 +270,9 @@ func main() {
 			listeners = append(listeners, listener)
 		}
 	}
-	for i := range listeners {
-		defer listeners[i].Close()
-	}
 
 	for i := range listeners {
+		defer listeners[i].Close()
 		go func(listener net.Listener) {
 			for {
 				conn, err := listener.Accept()
