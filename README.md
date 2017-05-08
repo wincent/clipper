@@ -10,17 +10,24 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     brew install clipper # run this outside of a tmux session
 
     # Configuration for ~/.tmux.conf:
+
+    # tmux >= 2.4: bind "Enter" in copy mode to both copy and forward to Clipper
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc localhost 8377"
+
+    # Or, if you are running Clipper on a UNIX domain socket:
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -U ~/.clipper.sock"
+
+    # tmux >= 1.8 and < 2.4: bind "Enter" in copy mode to both copy and forward to Clipper
+    bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
+
+    # Or, if you are running Clipper on a UNIX domain socket:
+    bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
+
     # tmux < 1.8: bind <prefix>-y to forward to Clipper
     bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
-
-    # tmux >= 1.8: bind "Enter" in copy mode to both copy and forward to Clipper
-    bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
-
-    # Or, if you are running Clipper on a UNIX domain socket:
-    bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
 
     # Configuration for ~/.vimrc:
     # Bind <leader>y to forward last-yanked text to Clipper
@@ -68,13 +75,17 @@ As a result, you often find yourself doing a tiresome sequence of:
 
 macOS comes with a `pbcopy` tool that allows you to get stuff into the clipboard from the command-line. `xclip` is an alternative that works on Linux. We've already seen this at work above. Basically, we can do things like `echo foo | pbcopy` to place "foo" in the system clipboard.
 
-tmux has a couple of handy commands related to copy mode buffers, namely `save-buffer` and `copy-pipe`. With these, you can dump the contents of a buffer to standard out.
+tmux has a few handy commands related to copy mode buffers, namely `save-buffer`, `copy-pipe` and `copy-pipe-and-cancel`, the availability of which depends on the version of tmux that you are running. With these, you can dump the contents of a buffer to standard out.
 
-In theory, combining these two elements, we can add something like this to our `~/.tmux.conf`:
+In theory, combining these elements, we can add something like this to our `~/.tmux.conf`:
+
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel pbcopy
+
+or, in a version of tmux prior to 2.4 (which use `vi-copy` instead of `copy-mode-vi`, and `copy-pipe` instead of `copy-pipe-and-cancel`):
 
     bind-key -t vi-copy Enter copy-pipe pbcopy
 
-or, in version of tmux prior to 1.8 (which don't have the `copy-pipe` command):
+or, in an even older version of tmux prior to 1.8 (which don't have the `copy-pipe-and-cancel` or `copy-pipe` commands):
 
     bind-key y run-shell "tmux save-buffer - | pbcopy"
 
@@ -254,7 +265,7 @@ The flags to pass to the `executable` (defaults to `-selection clipboard` on Lin
 
 ## Configuring tmux
 
-Now we can use a slight modification of our command from earlier. Assuming we kept the standard listen address (127.0.0.1) and port (8377), we can use a command like this to send the last-copied text whenever we hit our tmux prefix key followed by `y`:
+Now we can use a slight modification of our command from earlier. Assuming we kept the standard listen address (127.0.0.1) and port (8377), we can use a command like this to send the last-copied text whenever we hit our tmux prefix key followed by `y`; here we're using netcat (`nc`) to send the contents of the buffer to the listening Clipper agent:
 
     bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
 
@@ -262,7 +273,7 @@ If we instead configured Clipper to listen on a UNIX domain socket at `~/.clippe
 
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
 
-In tmux 1.8 or later, we have access to the new `copy-pipe` command and can use a single key binding to copy text into the tmux copy buffer and send it to Clipper and therefore the system clipboard at the same time:
+In tmux 1.8 to 2.3, we have access to the new `copy-pipe` command and can use a single key binding to copy text into the tmux copy buffer and send it to Clipper and therefore the system clipboard at the same time:
 
     bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
 
@@ -270,7 +281,13 @@ Or, for a UNIX domain socket at `~/.clipper.sock`:
 
     bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
 
-Here we're using netcat (`nc`) to send the contents of the buffer to the listening Clipper agent.
+In tmux 2.4 and above, we would use:
+
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc localhost 8377"
+
+Or, for a UNIX domain socket at `~/.clipper.sock`:
+
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -U ~/.clipper.sock"
 
 ## Configuring Vim
 
