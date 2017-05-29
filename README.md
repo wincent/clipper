@@ -392,7 +392,9 @@ You could also set up a shell alias to make setting up the Clipper tunnel more c
 
 You should only need to re-run this command if the connection is interrupted for some reason.
 
-### Fixing `remote port forwarding failed for listen port 8377`
+# Troubleshooting
+
+## Fixing `remote port forwarding failed for listen port 8377`
 
 This message can be emitted when the remote host you're connecting to already has something bound to the requested port. If there is a competing service that you can't move to another port, Clipper can be configured to use a different port with the `--port` switch, described above.
 
@@ -411,13 +413,17 @@ Do not do this as root, as you will lock yourself out of your server.
 
 Consult the netstat man page for more details (supported options may vary depending on the host operating system).
 
-### Fixing `remote port forwarding failed` when using UNIX domain sockets
+## Fixing `remote port forwarding failed` when using UNIX domain sockets
 
 Just as with TCP port forwarding, forwarding can fail when using UNIX domain sockets if a stale socket doesn't get automatically cleaned up (or overwritten, as *should* be the case when you use `StreamLocalBindUnlink=yes`).
 
 In this case, the fix is to remove the stale socket on the remote host. For example, assuming a socket in `$HOME/.clipper.sock` on the remote host, `$HOST`:
 
      $ ssh $HOST rm .clipper.sock
+
+## Fixing delays when sending data to Clipper via `nc`
+
+It's [been reported](https://github.com/wincent/clipper/issues/11) that on some systems sending data to Clipper via `nc` may be affected by an annoying delay. Reportedly, adding the `-N` switch to `nc` may address this issue.
 
 # "Reverse" Clipper
 
