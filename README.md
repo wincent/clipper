@@ -231,7 +231,7 @@ Here is a sample `~/.clipper.json` config file:
 ```
 {
   "address": "~/.run/clipper.sock",
-  "logfile": "~/Library/Log/clipper.log"
+  "logfile": "~/Library/Logs/clipper.log"
 }
 ```
 
