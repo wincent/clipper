@@ -442,6 +442,7 @@ Most SSH systems are configured to use restrictive permissions on forwarded sock
 Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
 Other contributors that have submitted patches include, in alphabetical order:
 
+  Jannis Hermanns
   Nelson Fernandez
 
 # Development
