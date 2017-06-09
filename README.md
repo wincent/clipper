@@ -101,7 +101,7 @@ This is a wrapper which allows you to launch a process and have it switch from t
 
     set-option -g default-command "reattach-to-user-namespace -l zsh"
 
-Despite the fact that the wrapper tool relies on an undocumented, private API, it is written quite defensively and appears to work pretty well. While this is a workable solution when running on the local machine, we'll need something else if we want things to work transparently both locally and remotely. This is where Clipper comes in.
+Despite the fact that the wrapper tool relies on an undocumented, private API, it is written quite defensively and appears to work pretty well. While this is a workable solution when running on the local machine — so workable in fact that it is baked into tmux itself in version 2.6 — we'll need something else if we want things to work transparently both locally and remotely, or on older versions of tmux. This is where Clipper comes in.
 
 Clipper is a server process that you can run on your local machine. It will listen on the network or on a UNIX domain socket for connections, and place any content that it receives into the system clipboard.
 
