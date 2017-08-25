@@ -301,7 +301,7 @@ Equivalently, we could do the same for a Clipper daemon listening on a UNIX doma
 
     nnoremap <leader>y :call system('nc -U ~/.clipper.sock', @0)<CR>
 
-For the lazy, this functionality plus a `:Clip` command is made available as a [separate Vim plug-in](https://github.com/wincent/vim-clipper) called "vim-clipper".
+For the lazy, this functionality plus a `:Clip` command is made available as a [separate Vim plug-in](https://github.com/wincent/vim-clipper) called "vim-clipper", which additionally makes it possible to use the `TextYankPost` autocommand to forward all yanked text to Clipper automatically on versions of Vim that support it (currently, Neovim).
 
 ## Configuring Zsh (or Bash)
 
