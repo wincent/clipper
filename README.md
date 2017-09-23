@@ -378,7 +378,7 @@ One way to use Clipper with Mosh is to use Mosh for interactive editing but keep
 
 With this set-up, you can set up the tunnel with:
 
-    ssh -N -f sandbox
+    ssh -N -f sandbox-clipper
 
 SSH will connect to the server, set up the port forwarding and then go into the background.
 
@@ -388,7 +388,7 @@ Then connect using Mosh (it will respect the settings in your `~/.ssh/config` fi
 
 You could also set up a shell alias to make setting up the Clipper tunnel more convenient; for example:
 
-    alias clip-sandbox='ssh -N -f sandbox'
+    alias clip-sandbox='ssh -N -f sandbox-clipper'
 
 You should only need to re-run this command if the connection is interrupted for some reason.
 
@@ -444,6 +444,7 @@ Other contributors that have submitted patches include, in alphabetical order:
 
   Jannis Hermanns
   Nelson Fernandez
+  Paul Choi
 
 # Development
 
