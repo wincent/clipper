@@ -444,6 +444,7 @@ Other contributors that have submitted patches include, in alphabetical order:
 
   Jannis Hermanns
   Nelson Fernandez
+  Paul Choi
 
 # Development
 
