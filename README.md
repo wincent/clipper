@@ -51,7 +51,6 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if you are running Clipper on a UNIX domain socket:
     Host host.example.org
       RemoteForward /home/me/.clipper.sock /Users/me/.clipper.sock
-      StreamLocalBindUnlink yes
 
 
 # Problem
@@ -328,9 +327,7 @@ Or, in the case of a UNIX domain socket at `~/.clipper.sock` and a sufficiently 
 
     # Assuming a local socket on macOS in $HOME at /Users/me/.clipper.sock
     # and a remote Linux machine with $HOME is in /home rather than /Users:
-    ssh -R/home/me/.clipper.sock:/Users/me/.clipper.sock \
-        -o StreamLocalBindUnlink=yes \
-        host.example.org
+    ssh -R/home/me/.clipper.sock:/Users/me/.clipper.sock host.example.org
 
 With this, a tmux process running on the remote host can use the same configuration file, and our `run-shell` from above will send the buffer contents to localhost:8377 (or the UNIX domain socket) on the remote machine, which will then be forwarded back over the SSH connection to localhost:8377 (or the UNIX domain socket) on the local machine, where Clipper is listening.
 
@@ -345,7 +342,6 @@ To make this automated, entries can be set up in `.ssh/config`:
     # UNIX domain socket forwarding:
     Host host.example.org
       RemoteForward /home/me/.clipper.sock:/Users/me/.clipper.sock
-      StreamLocalBindUnlink yes
 
 With this, forwarding is automatically set up any time you run:
 
@@ -415,7 +411,7 @@ Consult the netstat man page for more details (supported options may vary depend
 
 ## Fixing `remote port forwarding failed` when using UNIX domain sockets
 
-Just as with TCP port forwarding, forwarding can fail when using UNIX domain sockets if a stale socket doesn't get automatically cleaned up (or overwritten, as *should* be the case when you use `StreamLocalBindUnlink=yes`).
+Just as with TCP port forwarding, forwarding can fail when using UNIX domain sockets if a stale socket doesn't get automatically cleaned up (or overwritten, as should be the case when `StreamLocalBindUnlink yes` is present in the server's `sshd_config` file).
 
 In this case, the fix is to remove the stale socket on the remote host. For example, assuming a socket in `$HOME/.clipper.sock` on the remote host, `$HOST`:
 
