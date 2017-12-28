@@ -479,6 +479,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
+## 1.0.0 (28 December 2017)
+
+- Automatically clean up stale socket files at startup.
+
 ## 0.4.2 (14 April 2017)
 
 - Fix binding to all interfaces instead of just the loopback interface when no address is provided ([#9](https://github.com/wincent/clipper/issues/9)).
