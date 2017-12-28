@@ -239,6 +239,21 @@ func main() {
 		addr = settings.Address
 	}
 	if strings.HasPrefix(addr, "/") {
+		// Check to see if there is a pre-existing or stale socket present.
+		if _, err := os.Stat(addr); !os.IsNotExist(err) {
+			// Socket already exists.
+			if _, err = net.Dial("unix", addr); err == nil {
+				// Socket is live!
+				log.Fatal("Live socket already exists at: " + addr)
+			}
+
+			// Likely a stale socket left over after a crash.
+			log.Print("Dead socket found at: " + addr + " (removing)")
+			if err = os.Remove(addr); err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		log.Print("Starting UNIX domain socket server at ", addr)
 		listeners = append(listeners, listen("unix", addr, -1))
 	} else {
