@@ -38,17 +38,76 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"strconv"
 	"strings"
 	"syscall"
 )
 
+type IntFlag struct {
+	provided bool
+	value    int
+}
+
+// From flag.Value interface.
+func (f *IntFlag) Set(s string) error {
+	i, err := strconv.Atoi(s)
+	f.provided = true
+	f.value = i
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// From flag.Value interface.
+func (f *IntFlag) String() string {
+	return strconv.Itoa(f.value)
+}
+
+// From json.Unmarsheler interface.
+func (f *IntFlag) UnmarshalJSON(b []byte) error {
+	i, err := strconv.Atoi(string(b))
+	if err != nil {
+		return err
+	}
+	*f = IntFlag{provided: true, value: i}
+	return nil
+}
+
+type StringFlag struct {
+	provided bool
+	value    string
+}
+
+// From flag.Value interface.
+func (f *StringFlag) Set(s string) error {
+	f.provided = true
+	f.value = s
+	return nil
+}
+
+// From to flag.Value interface.
+func (f *StringFlag) String() string {
+	return f.value
+}
+
+// From json.Unmarsheler interface.
+func (f *StringFlag) UnmarshalJSON(b []byte) error {
+	var raw string
+	if err := json.Unmarshal(b, &raw); err != nil {
+		return err
+	}
+	*f = StringFlag{provided: true, value: raw}
+	return nil
+}
+
 type Options struct {
-	Address    string
-	Config     string
-	Logfile    string
-	Executable string
-	Flags      string
-	Port       int
+	Address    StringFlag
+	Config     StringFlag
+	Logfile    StringFlag
+	Executable StringFlag
+	Flags      StringFlag
+	Port       IntFlag
 }
 
 var version = "unknown"
@@ -78,67 +137,55 @@ func initFlags() {
 
 	flag.BoolVar(&showHelp, "h", false, helpUsage)
 	flag.BoolVar(&showHelp, "help", false, helpUsage)
-	flag.IntVar(&flags.Port, "p", defaults.Port, listenPortUsage)
-	flag.IntVar(&flags.Port, "port", defaults.Port, listenPortUsage)
-	flag.StringVar(&flags.Address, "a", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Address, "address", defaults.Address, listenAddrUsage)
-	flag.StringVar(&flags.Config, "c", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Config, "config", defaults.Config, configFileUsage)
-	flag.StringVar(&flags.Executable, "e", defaults.Executable, executableUsage)
-	flag.StringVar(&flags.Executable, "executable", defaults.Executable, executableUsage)
-	flag.StringVar(&flags.Flags, "f", defaults.Flags, flagsUsage)
-	flag.StringVar(&flags.Flags, "flags", defaults.Flags, flagsUsage)
-	flag.StringVar(&flags.Logfile, "l", defaults.Logfile, logFileUsage)
-	flag.StringVar(&flags.Logfile, "logfile", defaults.Logfile, logFileUsage)
+	flag.Var(&flags.Port, "p", listenPortUsage)
+	flag.Var(&flags.Port, "port", listenPortUsage)
+	flag.Var(&flags.Address, "a", listenAddrUsage)
+	flag.Var(&flags.Address, "address", listenAddrUsage)
+	flag.Var(&flags.Config, "c", configFileUsage)
+	flag.Var(&flags.Config, "config", configFileUsage)
+	flag.Var(&flags.Executable, "e", executableUsage)
+	flag.Var(&flags.Executable, "executable", executableUsage)
+	flag.Var(&flags.Flags, "f", flagsUsage)
+	flag.Var(&flags.Flags, "flags", flagsUsage)
+	flag.Var(&flags.Logfile, "l", logFileUsage)
+	flag.Var(&flags.Logfile, "logfile", logFileUsage)
 	flag.BoolVar(&showVersion, "v", false, versionUsage)
 	flag.BoolVar(&showVersion, "version", false, versionUsage)
 }
 
 func setDefaults() {
-	defaults.Address = "" // IPv4/IPv6 loopback.
-	defaults.Port = 8377
+	defaults.Address = StringFlag{value: ""} // IPv4/IPv6 loopback.
+	defaults.Port = IntFlag{value: 8377}
 
 	if runtime.GOOS == "linux" {
-		defaults.Config = "~/.config/clipper/clipper.json"
-		defaults.Logfile = "~/.config/clipper/logs/clipper.log"
-		defaults.Executable = "xclip"
-		defaults.Flags = "-selection clipboard"
+		defaults.Config = StringFlag{value: "~/.config/clipper/clipper.json"}
+		defaults.Logfile = StringFlag{value: "~/.config/clipper/logs/clipper.log"}
+		defaults.Executable = StringFlag{value: "xclip"}
+		defaults.Flags = StringFlag{value: "-selection clipboard"}
 	} else {
-		defaults.Config = "~/.clipper.json"
-		defaults.Logfile = "~/Library/Logs/com.wincent.clipper.log"
-		defaults.Executable = "pbcopy"
-		defaults.Flags = ""
+		defaults.Config = StringFlag{value: "~/.clipper.json"}
+		defaults.Logfile = StringFlag{value: "~/Library/Logs/com.wincent.clipper.log"}
+		defaults.Executable = StringFlag{value: "pbcopy"}
+		defaults.Flags = StringFlag{value: ""}
 	}
 }
 
 func mergeSettings() {
-	// Detect which flags were passed in explicitly, and set them immediately.
-	// This is used below to determine response to a missing config file.
-	visitor := func(f *flag.Flag) {
-		if f.Name == "address" || f.Name == "a" {
-			settings.Address = flags.Address
-		} else if f.Name == "config" || f.Name == "c" {
-			settings.Config = flags.Config
-		} else if f.Name == "executable" || f.Name == "e" {
-			settings.Executable = flags.Executable
-		} else if f.Name == "flags" || f.Name == "f" {
-			settings.Flags = flags.Flags
-		} else if f.Name == "port" || f.Name == "p" {
-			settings.Port = flags.Port
-		} else if f.Name == "logfile" || f.Name == "l" {
-			settings.Logfile = flags.Logfile
-		}
-	}
-	flag.Visit(visitor)
+	flag.Parse()
 
-	expandedPath := expandPath(flags.Config)
+	var expandedPath string
+	if flags.Config.provided {
+		expandedPath = expandPath(flags.Config.value)
+	} else {
+		expandedPath = expandPath(defaults.Config.value)
+	}
 
 	if configData, err := ioutil.ReadFile(expandedPath); err != nil {
-		if settings.Config != "" {
+		if flags.Config.provided {
 			// User explicitly asked for a config file and it wasn't there; fail hard.
 			log.Fatal(err)
 		} else {
-			// Default config file missing; just warn.
+			// Default config file unreadable (probably missing); just warn.
 			log.Print(err)
 		}
 	} else {
@@ -148,45 +195,45 @@ func mergeSettings() {
 	}
 
 	// Final merge into settings object.
-	if settings.Address == "" {
-		if config.Address != "" {
-			settings.Address = config.Address
-		} else {
-			settings.Address = defaults.Address
-		}
+	if flags.Address.provided {
+		settings.Address = flags.Address
+	} else if config.Address.provided {
+		settings.Address = config.Address
+	} else {
+		settings.Address = defaults.Address
 	}
-	if settings.Logfile == "" {
-		if config.Logfile != "" {
-			settings.Logfile = config.Logfile
-		} else {
-			settings.Logfile = defaults.Logfile
-		}
+	if flags.Logfile.provided {
+		settings.Logfile = flags.Logfile
+	} else if config.Logfile.provided {
+		settings.Logfile = config.Logfile
+	} else {
+		settings.Logfile = defaults.Logfile
 	}
-	if settings.Port != 0 || config.Port != 0 {
-		if isPath(settings.Address) {
+	if flags.Port.provided || config.Port.provided {
+		if isPath(settings.Address.value) {
 			log.Print("--port option ignored when listening on UNIX domain socket")
 		}
 	}
-	if settings.Port == 0 {
-		if config.Port != 0 {
-			settings.Port = config.Port
-		} else {
-			settings.Port = defaults.Port
-		}
+	if flags.Port.provided {
+		settings.Port = flags.Port
+	} else if config.Port.provided {
+		settings.Port = config.Port
+	} else {
+		settings.Port = defaults.Port
 	}
-	if settings.Executable == "" {
-		if config.Executable != "" {
-			settings.Executable = config.Executable
-		} else {
-			settings.Executable = defaults.Executable
-		}
+	if flags.Executable.provided {
+		settings.Executable = flags.Executable
+	} else if config.Executable.provided {
+		settings.Executable = config.Executable
+	} else {
+		settings.Executable = defaults.Executable
 	}
-	if settings.Flags == "" {
-		if config.Flags != "" {
-			settings.Flags = config.Flags
-		} else {
-			settings.Flags = defaults.Flags
-		}
+	if flags.Flags.provided {
+		settings.Flags = flags.Flags
+	} else if config.Flags.provided {
+		settings.Flags = config.Flags
+	} else {
+		settings.Flags = defaults.Flags
 	}
 }
 
@@ -219,7 +266,7 @@ func main() {
 	// Merge flags -> config -> defaults.
 	mergeSettings()
 
-	expandedPath := expandPath(settings.Logfile)
+	expandedPath := expandPath(settings.Logfile.value)
 	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
@@ -227,16 +274,16 @@ func main() {
 	defer outfile.Close()
 	log.SetOutput(outfile)
 
-	if _, err := exec.LookPath(settings.Executable); err != nil {
+	if _, err := exec.LookPath(settings.Executable.value); err != nil {
 		log.Fatal(err)
 	}
 
 	var addr string
 	var listeners []net.Listener
-	if isPath(settings.Address) {
-		addr = expandPath(settings.Address)
+	if isPath(settings.Address.value) {
+		addr = expandPath(settings.Address.value)
 	} else {
-		addr = settings.Address
+		addr = settings.Address.value
 	}
 	if strings.HasPrefix(addr, "/") {
 		// Check to see if there is a pre-existing or stale socket present.
@@ -259,11 +306,11 @@ func main() {
 	} else {
 		if addr == "" {
 			log.Print("Starting TCP server on loopback interface")
-			listeners = append(listeners, listen("tcp4", "127.0.0.1", settings.Port))
-			listeners = append(listeners, listen("tcp6", "[::1]", settings.Port))
+			listeners = append(listeners, listen("tcp4", "127.0.0.1", settings.Port.value))
+			listeners = append(listeners, listen("tcp6", "[::1]", settings.Port.value))
 		} else {
 			log.Print("Starting TCP server on ", addr)
-			listeners = append(listeners, listen("tcp", settings.Address, settings.Port))
+			listeners = append(listeners, listen("tcp", settings.Address.value, settings.Port.value))
 		}
 	}
 
@@ -351,11 +398,11 @@ func handleConnection(conn net.Conn) {
 	defer conn.Close()
 
 	var args []string
-	if settings.Flags != "" {
+	if settings.Flags.value != "" {
 		whitespace := regexp.MustCompile("\\s+")
-		args = whitespace.Split(strings.TrimSpace(settings.Flags), -1)
+		args = whitespace.Split(strings.TrimSpace(settings.Flags.value), -1)
 	}
-	cmd := exec.Command(settings.Executable, args...)
+	cmd := exec.Command(settings.Executable.value, args...)
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		log.Printf("[ERROR] pipe init: %v\n", err)
