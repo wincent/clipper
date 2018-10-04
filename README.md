@@ -479,6 +479,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
+## 2.0.0 (4 September 2018)
+
+- Accept an empty string for the `--flags` option, allowing flags to be suppressed ([#15](https://github.com/wincent/clipper/issues/15)).
+
 ## 1.0.0 (28 December 2017)
 
 - Automatically clean up stale socket files at startup.
