@@ -17,17 +17,26 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -U ~/.clipper.sock"
 
+    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "socat - UNIX-CLIENT:~/.clipper.sock"
+
     # tmux >= 1.8 and < 2.4: bind "Enter" in copy mode to both copy and forward to Clipper
     bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
 
+    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    bind-key -t vi-copy Enter copy-pipe "socat - UNIX-CLIENT:~/.clipper.sock"
+
     # tmux < 1.8: bind <prefix>-y to forward to Clipper
     bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
+
+    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    bind-key y run-shell "tmux save-buffer - | socat - UNIX-CLIENT:~/.clipper.sock"
 
     # Configuration for ~/.vimrc:
     # Bind <leader>y to forward last-yanked text to Clipper
@@ -36,12 +45,18 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if you are running Clipper on a UNIX domain socket:
     nnoremap <leader>y :call system('nc -U ~/.clipper.sock', @0)<CR>
 
+    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
+
     # Configuration for ~/.bash_profile, ~/.zshrc etc:
     # Pipe anything into `clip` to forward it to Clipper
     alias clip="nc localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     alias clip="nc -U ~/.clipper.sock"
+
+    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    alias clip="socat - UNIX-CLIENT:~/.clipper.sock"
 
     # Configuration for ~/.ssh/config:
     # Forward Clipper connection to remote host
@@ -272,6 +287,10 @@ If we instead configured Clipper to listen on a UNIX domain socket at `~/.clippe
 
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
 
+Or, alternatively, with `socat` (which may be useful if your version of `nc` doesn't support the `-U` switch):
+
+    bind-key y run-shell "tmux save-buffer - | socat - UNIX-CLIENT:~/.clipper.sock"
+
 In tmux 1.8 to 2.3, we have access to the new `copy-pipe` command and can use a single key binding to copy text into the tmux copy buffer and send it to Clipper and therefore the system clipboard at the same time:
 
     bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
@@ -280,6 +299,10 @@ Or, for a UNIX domain socket at `~/.clipper.sock`:
 
     bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
 
+Or, with `socat`:
+
+    bind-key -t vi-copy Enter copy-pipe "socat - UNIX-CLIENT:~/.clipper.sock"
+
 In tmux 2.4 and above, we would use:
 
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc localhost 8377"
@@ -287,6 +310,10 @@ In tmux 2.4 and above, we would use:
 Or, for a UNIX domain socket at `~/.clipper.sock`:
 
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -U ~/.clipper.sock"
+
+Or, with `socat`:
+
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "socat - UNIX-CLIENT:~/.clipper.sock"
 
 ## Configuring Vim
 
@@ -300,6 +327,10 @@ Equivalently, we could do the same for a Clipper daemon listening on a UNIX doma
 
     nnoremap <leader>y :call system('nc -U ~/.clipper.sock', @0)<CR>
 
+Or, with `socat`:
+
+    nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
+
 For the lazy, this functionality plus a `:Clip` command is made available as a [separate Vim plug-in](https://github.com/wincent/vim-clipper) called "vim-clipper", which additionally makes it possible to use the `TextYankPost` autocommand to forward all yanked text to Clipper automatically on versions of Vim that support it (currently, Neovim).
 
 ## Configuring Zsh (or Bash)
@@ -311,6 +342,10 @@ By setting up an alias like:
 or (in the case of Clipper listening on a UNIX domain socket at `~/.clipper.sock`):
 
     alias clip="nc -U ~/.clipper.sock"
+
+or, with `socat`:
+
+    alias clip="socat - UNIX-CLIENT:~/.clipper.sock"
 
 you can conveniently get files and other content into your clipboard:
 
