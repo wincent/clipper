@@ -67,7 +67,6 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     Host host.example.org
       RemoteForward /home/me/.clipper.sock /Users/me/.clipper.sock
 
-
 # Problem
 
 You're running tmux, possibly on a remote machine via ssh, and want to copy something using tmux copy mode into your local system clipboard.
@@ -253,7 +252,7 @@ Note that explicit command line options — including options supplied via a pli
 
 ### `--address`
 
-Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost", and listens on both IPv4 and IPv6 addresses, when available. This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have Clipper create a UNIX domain socket at that location and listen on that instead (for better security: see "Security" below for more). Or perhaps you would like to *only* listen on IPv4 *or* IPv6, in which case you would use "127.0.0.1" or "[::1]" respectively (the square brackets around the IPv6 address are needed by the Go networking libraries in order to disambiguate the colons in the address from colons used to separate it from the port number). Note that if you see an error of the form "too many colons in address", it is likely that you have forgotten to wrap the IPv6 address in surrounding brackets.
+Specifies the address on which the Clipper daemon will listen for connections. Defaults to "localhost", and listens on both IPv4 and IPv6 addresses, when available. This is a reasonable default, but you may wish to set it to a filesystem path instead in order to have Clipper create a UNIX domain socket at that location and listen on that instead (for better security: see "Security" below for more). Or perhaps you would like to _only_ listen on IPv4 _or_ IPv6, in which case you would use "127.0.0.1" or "[::1]" respectively (the square brackets around the IPv6 address are needed by the Go networking libraries in order to disambiguate the colons in the address from colons used to separate it from the port number). Note that if you see an error of the form "too many colons in address", it is likely that you have forgotten to wrap the IPv6 address in surrounding brackets.
 
 ### `--port`
 
@@ -265,7 +264,7 @@ See the "Security" section below for more.
 
 ### `--logfile`
 
-Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to  "~/Library/Logs/com.wincent.clipper.log".
+Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to "~/Library/Logs/com.wincent.clipper.log".
 
 As an example, you could disable all logging by setting this to "/dev/null".
 
