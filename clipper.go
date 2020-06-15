@@ -35,7 +35,6 @@ import (
 	"os/exec"
 	"os/signal"
 	"os/user"
-	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -210,11 +209,7 @@ func mergeSettings() {
 	} else {
 		settings.Logfile = defaults.Logfile
 		if runtime.GOOS == "linux" {
-			home, err := os.UserHomeDir()
-			if err != nil {
-				log.Fatal(err)
-			}
-			configDir := path.Join(home, ".config/clipper/logs")
+			configDir := pathByExpandingTildeInPath(filepath.Dir(defaults.Logfile.value))
 			os.MkdirAll(configDir, 0700)
 		}
 	}
