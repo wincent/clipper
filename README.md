@@ -188,6 +188,7 @@ On Linux:
     systemctl --user stop clipper.service
     systemctl --user disable clipper.service
     sudo rm /usr/local/bin/clipper
+    rm -r ~/.config/clipper
 
 To kill a manually-launched instance of Clipper, just hit Control+C in the terminal where it is running.
 
