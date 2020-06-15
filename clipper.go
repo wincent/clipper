@@ -35,6 +35,7 @@ import (
 	"os/exec"
 	"os/signal"
 	"os/user"
+	"path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -208,6 +209,14 @@ func mergeSettings() {
 		settings.Logfile = config.Logfile
 	} else {
 		settings.Logfile = defaults.Logfile
+		if runtime.GOOS == "linux" {
+			home, err := os.UserHomeDir()
+			if err != nil {
+				log.Fatal(err)
+			}
+			configDir := path.Join(home, ".config/clipper/logs")
+			os.MkdirAll(configDir, 0700)
+		}
 	}
 	if flags.Port.provided || config.Port.provided {
 		if isPath(settings.Address.value) {
