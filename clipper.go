@@ -208,10 +208,6 @@ func mergeSettings() {
 		settings.Logfile = config.Logfile
 	} else {
 		settings.Logfile = defaults.Logfile
-		if runtime.GOOS == "linux" {
-			configDir := pathByExpandingTildeInPath(filepath.Dir(defaults.Logfile.value))
-			os.MkdirAll(configDir, 0700)
-		}
 	}
 	if flags.Port.provided || config.Port.provided {
 		if isPath(settings.Address.value) {
@@ -270,6 +266,10 @@ func main() {
 	// Merge flags -> config -> defaults.
 	mergeSettings()
 
+	if runtime.GOOS == "linux" {
+		configDir := expandPath(filepath.Dir(settings.Logfile.value))
+		os.MkdirAll(configDir, 0700)
+	}
 	expandedPath := expandPath(settings.Logfile.value)
 	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
