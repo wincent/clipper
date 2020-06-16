@@ -267,6 +267,10 @@ func main() {
 	mergeSettings()
 
 	expandedPath := expandPath(settings.Logfile.value)
+	logDir := filepath.Dir(expandedPath)
+	if err := os.MkdirAll(logDir, 0700); err != nil {
+		log.Fatal(err)
+	}
 	outfile, err := os.OpenFile(expandedPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 	if err != nil {
 		log.Fatal(err)
