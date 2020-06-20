@@ -68,6 +68,8 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     " Or, if your version of netcat doesn't have socket support and you want to use socat:
     nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
 
+Alternatively, use the [vim-clipper plug-in](https://github.com/wincent/vim-clipper).
+
 ## Configuration for `~/.bash_profile`, `~/.zshrc` etc
 
     # Pipe anything into `clip` to forward it to Clipper
