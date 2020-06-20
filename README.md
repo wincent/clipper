@@ -6,13 +6,19 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
 
 # At a glance
 
-    # macOS installation (using Homebrew; for non-Homebrew installs see below)
+## macOS installation (using Homebrew; for non-Homebrew installs see below)
+
     brew install clipper # run this outside of a tmux session
 
-    # Configuration for ~/.tmux.conf:
+## Configuration for `~/.tmux.conf`
 
-    # tmux >= 2.4: bind "Enter" in copy mode to both copy and forward to Clipper
+### tmux 2.4 and later
+
+    # Bind "Enter" in copy mode to both copy and forward to Clipper:
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc localhost 8377"
+
+    # Or, if you are running on a platform where nc requires the `-N` switch (eg. Ubuntu):
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -N localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -U ~/.clipper.sock"
@@ -20,8 +26,13 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if your version of netcat doesn't have socket support and you want to use socat:
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "socat - UNIX-CLIENT:~/.clipper.sock"
 
-    # tmux >= 1.8 and < 2.4: bind "Enter" in copy mode to both copy and forward to Clipper
+### tmux >= 1.8 but < 2.4
+
+    # Bind "Enter" in copy mode to both copy and forward to Clipper:
     bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
+
+    # Or, if you are running on a platform where nc requires the `-N` switch (eg. Ubuntu):
+    bind-key -t vi-copy Enter copy-pipe "nc -N localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
@@ -29,8 +40,13 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if your version of netcat doesn't have socket support and you want to use socat:
     bind-key -t vi-copy Enter copy-pipe "socat - UNIX-CLIENT:~/.clipper.sock"
 
-    # tmux < 1.8: bind <prefix>-y to forward to Clipper
+### tmux < 1.8
+
+    # Bind <prefix>-y to forward to Clipper
     bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
+
+    # Or, if you are running on a platform where nc requires the `-N` switch (eg. Ubuntu):
+    bind-key y run-shell "tmux save-buffer - | nc -N localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
@@ -38,19 +54,27 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if your version of netcat doesn't have socket support and you want to use socat:
     bind-key y run-shell "tmux save-buffer - | socat - UNIX-CLIENT:~/.clipper.sock"
 
-    # Configuration for ~/.vimrc:
-    # Bind <leader>y to forward last-yanked text to Clipper
+## Configuration for `~/.vimrc`
+
+    " Bind <leader>y to forward last-yanked text to Clipper
     nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
 
-    # Or, if you are running Clipper on a UNIX domain socket:
+    " Or, if you are running on a platform where nc requires the `-N` switch (eg. Ubuntu):
+    nnoremap <leader>y :call system('nc -N localhost 8377', @0)<CR>
+
+    " Or, if you are running Clipper on a UNIX domain socket:
     nnoremap <leader>y :call system('nc -U ~/.clipper.sock', @0)<CR>
 
-    # Or, if your version of netcat doesn't have socket support and you want to use socat:
+    " Or, if your version of netcat doesn't have socket support and you want to use socat:
     nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
 
-    # Configuration for ~/.bash_profile, ~/.zshrc etc:
+## Configuration for `~/.bash_profile`, `~/.zshrc` etc
+
     # Pipe anything into `clip` to forward it to Clipper
     alias clip="nc localhost 8377"
+
+    " Or, if you are running on a platform where nc requires the `-N` switch (eg. Ubuntu):
+    alias clip="nc -N localhost 8377"
 
     # Or, if you are running Clipper on a UNIX domain socket:
     alias clip="nc -U ~/.clipper.sock"
@@ -58,7 +82,8 @@ Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in t
     # Or, if your version of netcat doesn't have socket support and you want to use socat:
     alias clip="socat - UNIX-CLIENT:~/.clipper.sock"
 
-    # Configuration for ~/.ssh/config:
+## Configuration for `~/.ssh/config`
+
     # Forward Clipper connection to remote host
     Host host.example.org
       RemoteForward 8377 localhost:8377
@@ -283,6 +308,10 @@ Now we can use a slight modification of our command from earlier. Assuming we ke
 
     bind-key y run-shell "tmux save-buffer - | nc localhost 8377"
 
+Or, if you are running on a platform where `nc` requires the `-N` switch (eg. Ubuntu):
+
+    bind-key y run-shell "tmux save-buffer - | nc -N localhost 8377"
+
 If we instead configured Clipper to listen on a UNIX domain socket at `~/.clipper.sock`, then we could do something like:
 
     bind-key y run-shell "tmux save-buffer - | nc -U ~/.clipper.sock"
@@ -295,6 +324,10 @@ In tmux 1.8 to 2.3, we have access to the new `copy-pipe` command and can use a 
 
     bind-key -t vi-copy Enter copy-pipe "nc localhost 8377"
 
+Or, if you are running on a platform where `nc` requires the `-N` switch (eg. Ubuntu):
+
+    bind-key -t vi-copy Enter copy-pipe "nc -N localhost 8377"
+
 Or, for a UNIX domain socket at `~/.clipper.sock`:
 
     bind-key -t vi-copy Enter copy-pipe "nc -U ~/.clipper.sock"
@@ -306,6 +339,10 @@ Or, with `socat`:
 In tmux 2.4 and above, we would use:
 
     bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc localhost 8377"
+
+Or, if you are running on a platform where `nc` requires the `-N` switch (eg. Ubuntu):
+
+    bind-key -T copy-mode-vi Enter send-keys -X copy-pipe-and-cancel "nc -N localhost 8377"
 
 Or, for a UNIX domain socket at `~/.clipper.sock`:
 
@@ -323,6 +360,10 @@ For example, we can add a mapping to our `~/.vimrc` to send the last-yanked text
 
     nnoremap <leader>y :call system('nc localhost 8377', @0)<CR>
 
+Or, if you are running on a platform where `nc` requires the `-N` switch (eg. Ubuntu):
+
+    nnoremap <leader>y :call system('nc -N localhost 8377', @0)<CR>
+
 Equivalently, we could do the same for a Clipper daemon listening on a UNIX domain socket at `~/.clipper.sock` with:
 
     nnoremap <leader>y :call system('nc -U ~/.clipper.sock', @0)<CR>
@@ -339,15 +380,19 @@ By setting up an alias like:
 
     alias clip="nc localhost 8377"
 
-or (in the case of Clipper listening on a UNIX domain socket at `~/.clipper.sock`):
+Or, if you are running on a platform where `nc` requires the `-N` switch (eg. Ubuntu):
+
+    alias clip="nc -N localhost 8377"
+
+Or (in the case of Clipper listening on a UNIX domain socket at `~/.clipper.sock`):
 
     alias clip="nc -U ~/.clipper.sock"
 
-or, with `socat`:
+Or, with `socat`:
 
     alias clip="socat - UNIX-CLIENT:~/.clipper.sock"
 
-you can conveniently get files and other content into your clipboard:
+You can conveniently get files and other content into your clipboard:
 
     cat example.txt | clip
     ls /etc | clip
