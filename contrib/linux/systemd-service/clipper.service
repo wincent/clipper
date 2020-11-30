@@ -1,15 +1,15 @@
 [Unit]
 Description=Clipper ~ Clipboard proxy
+Documentation=https://github.com/wincent/clipper
 
 [Service]
 Environment=DISPLAY=:0
-ExecStart=/usr/local/bin/clipper
+# Fix logging to stderr
+# https://unix.stackexchange.com/a/401396/101415
+ExecStart=/bin/bash -o pipefail -c '{ clipper --logfile /dev/stderr 2>&1 >&3 3>&- | cat >&2 3>&-; } 3>&1'
 Restart=always
 # Restart service after 10 seconds if service crashes
 RestartSec=10
-StandardOutput=syslog
-StandardError=syslog
-SyslogIdentifier=clipper
 
 [Install]
 WantedBy=basic.target
