@@ -1,3 +1,4 @@
+PREFIX := /usr/local
 VERSION := $(shell git describe --always --dirty)
 
 help:
@@ -22,6 +23,10 @@ clipper: clipper.go
 	go build -ldflags="-X main.version=${VERSION}" $^
 
 build: clipper
+
+.PHONY: install
+install: build
+	install -Dm755 clipper ${PREFIX}/bin/clipper
 
 tag: version
 	git tag -s ${VERSION} -m "${VERSION} release"
