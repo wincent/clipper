@@ -4,6 +4,7 @@ VERSION := $(shell git describe --always --dirty)
 
 help:
 	@echo 'make build   - build the clipper executable'
+	@echo 'make install - install the clipper executable'
 	@echo 'make tag     - tag the current HEAD with VERSION'
 	@echo 'make archive - create an archive of the current HEAD for VERSION'
 	@echo 'make upload  - upload the built archive of VERSION to Amazon S3'
