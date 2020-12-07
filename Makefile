@@ -1,6 +1,7 @@
 DESTDIR :=
 PREFIX := /usr/local
 VERSION := $(shell git describe --always --dirty)
+LDFLAGS := -s -w $(LDFLAGS) -X "main.version=$(VERSION)"
 
 help:
 	@echo 'make build   - build the clipper executable'
@@ -14,15 +15,15 @@ version:
 	@if [ "$$VERSION" = "" ]; then echo "VERSION not set"; exit 1; fi
 
 clipper_linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_linux clipper.go
+	GOOS=linux GOARCH=amd64 go build -ldflags='${LDFLAGS}' -o clipper_linux clipper.go
 
 clipper_darwin:
-	GOOS=darwin GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_darwin clipper.go
+	GOOS=darwin GOARCH=amd64 go build -ldflags='${LDFLAGS}' -o clipper_darwin clipper.go
 
 clipper_all: clipper_linux clipper_darwin
 
 clipper: clipper.go
-	go build -ldflags="-X main.version=${VERSION}" $^
+	go build -ldflags='${LDFLAGS}' $^
 
 build: clipper
 
