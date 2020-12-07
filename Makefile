@@ -3,6 +3,7 @@ PREFIX := /usr/local
 VERSION := $(shell git describe --always --dirty)
 LDFLAGS := -s -w $(LDFLAGS) -X "main.version=$(VERSION)"
 
+GOFLAGS ?= -trimpath
 EXTRA_GOFLAGS ?= -buildmode=pie
 
 help:
@@ -17,15 +18,15 @@ version:
 	@if [ "$$VERSION" = "" ]; then echo "VERSION not set"; exit 1; fi
 
 clipper_linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) -o clipper_linux clipper.go
+	GOOS=linux GOARCH=amd64 go build $(GOFLAGS) -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) -o clipper_linux clipper.go
 
 clipper_darwin:
-	GOOS=darwin GOARCH=amd64 go build -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) -o clipper_darwin clipper.go
+	GOOS=darwin GOARCH=amd64 go build $(GOFLAGS) -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) -o clipper_darwin clipper.go
 
 clipper_all: clipper_linux clipper_darwin
 
 clipper: clipper.go
-	go build -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) $^
+	go build $(GOFLAGS) -ldflags='${LDFLAGS}' $(EXTRA_GOFLAGS) $^
 
 build: clipper
 
