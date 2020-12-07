@@ -1,3 +1,4 @@
+DESTDIR :=
 PREFIX := /usr/local
 VERSION := $(shell git describe --always --dirty)
 
@@ -26,7 +27,7 @@ build: clipper
 
 .PHONY: install
 install: build
-	install -Dm755 clipper ${PREFIX}/bin/clipper
+	install -Dm755 clipper ${DESTDIR}${PREFIX}/bin/clipper
 
 tag: version
 	git tag -s ${VERSION} -m "${VERSION} release"
