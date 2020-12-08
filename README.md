@@ -184,7 +184,18 @@ Note that these commands may fail to do the right thing inside of a tmux session
 #### Linux example setup
 
     sudo cp clipper /usr/local/bin
+    mkdir -p ~/.config/systemd/user
     cp contrib/linux/systemd-service/clipper.service ~/.config/systemd/user
+    systemctl --user daemon-reload
+    systemctl --user enable clipper.service
+    systemctl --user start clipper.service
+
+##### Arch Linux
+
+The [`clipper-git` package](https://aur.archlinux.org/packages/clipper-git/) is available from the Arch User Repository. It installs the `clipper` executable to `/usr/bin/clipper`, and a sample `clipper.service` to `/usr/share/clipper/clipper.service`.
+
+    mkdir -p ~/.config/systemd/user
+    cp /usr/share/clipper/clipper.service ~/.config/systemd/user/clipper.service
     systemctl --user daemon-reload
     systemctl --user enable clipper.service
     systemctl --user start clipper.service
