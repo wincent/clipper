@@ -510,9 +510,11 @@ In this case, the fix is to remove the stale socket on the remote host. For exam
 
      $ ssh $HOST rm .clipper.sock
 
-## Fixing delays when sending data to Clipper via `nc`
+## Fixing delays or hangs when sending data to Clipper via `nc`
 
 It's [been reported](https://github.com/wincent/clipper/issues/11) that on some systems sending data to Clipper via `nc` may be affected by an annoying delay. Reportedly, adding the `-N` switch to `nc` may address this issue.
+
+If the `-N` switch is not available for your version of `nc`, try using `-q 1` instead. It has [been reported](https://github.com/wincent/clipper/issues/23) this may be a suitable replacement for the `-N` switch on more recent distributions of Ubuntu/Debian.
 
 # "Reverse" Clipper
 
