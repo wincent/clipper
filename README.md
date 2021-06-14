@@ -1,4 +1,4 @@
-![Clipper](https://raw.github.com/wincent/clipper/master/logo.png)
+![Clipper](https://raw.github.com/wincent/clipper/main/logo.png)
 
 # Overview
 
@@ -562,7 +562,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
-## master (not yet released)
+## main (not yet released)
 
 - Automatically create logfile directory (patch from Daniel Thatcher, [#21](https://github.com/wincent/clipper/pull/21/commits)).
 
