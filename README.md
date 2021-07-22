@@ -1,8 +1,19 @@
-![Clipper](https://raw.github.com/wincent/clipper/main/logo.png)
+![Clipper logo](https://raw.github.com/wincent/clipper/media/logo.png)
 
 # Overview
 
 Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
+
+![Example topology](https://raw.github.com/wincent/clipper/media/diagram.png)
+
+In the above example, you start off in a shell on your local machine; from there you use `ssh` to a remote machine, where:
+
+1. You run `vim` (from a shell, inside `tmux`, which itself runs in a shell).
+2. When you "yank" text in `vim`, it is fed into the `~/.clipper.sock` socket.
+3. Via a SSH `RemoteForward` connection, the yanked text arrives back to the Clipper process running on your local machine.
+4. The launch agent puts the text in your system clipboard.
+
+Once everything is configured, all of this happens transparently; editing in `vim` on a remote machine feels exactly like doing it on your local machine. While the above example uses macOS, vim, and tmux, the same patterns apply to other platforms and tools.
 
 # At a glance
 
