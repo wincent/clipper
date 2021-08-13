@@ -420,7 +420,7 @@ Or, in the case of a UNIX domain socket at `~/.clipper.sock` and a sufficiently 
 
     # Assuming a local socket on macOS in $HOME at /Users/me/.clipper.sock
     # and a remote Linux machine with $HOME is in /home rather than /Users:
-    ssh -R/home/me/.clipper.sock:/Users/me/.clipper.sock host.example.org
+    ssh -R /home/me/.clipper.sock:/Users/me/.clipper.sock host.example.org
 
 With this, a tmux process running on the remote host can use the same configuration file, and our `run-shell` from above will send the buffer contents to localhost:8377 (or the UNIX domain socket) on the remote machine, which will then be forwarded back over the SSH connection to localhost:8377 (or the UNIX domain socket) on the local machine, where Clipper is listening.
 
