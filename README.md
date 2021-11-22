@@ -526,6 +526,16 @@ This may be fine on a single-user machine, but when you start using `ssh -R` to 
 
 Most SSH systems are configured to use restrictive permissions on forwarded socket files (unless overridden; see the documentation for `StreamLocalBindMask` in `man ssh_config`), but you may wish to place the socket in a non-shared location like `~/.clipper.sock` rather than a shared one like `/tmp/clipper.sock` in any case.
 
+# Frequently Asked Questions
+
+## How does Clipper compare to the OSC-52 escape sequence?
+
+OSC-52 is a relatively recent unofficial addition to the set of [ANSI escape sequences](https://en.wikipedia.org/wiki/ANSI_escape_code#OSC_%28Operating_System_Command%29_sequences) but it is [supported by many programs](https://www.reddit.com/r/vim/comments/k1ydpn/a_guide_on_how_to_copy_text_from_anywhere/)[^osc52]. In these compatible programs, with some configuration or support from a plug-in, the escape sequence can be used to instruct the receiving application to insert content into the system clipboard. The main attraction of this implementation is that, if it works at all, it will work irrespective of the location where the copy is happening. For example, a process such as Vim running inside tmux inside an SSH session on a remote host inside a Kitty terminal window can insert text into the clipboard just as easily as it could if run on the local host.
+
+Personally, I continue to use Clipper because most OSC-52 implementations seem to have arbitrary, incompatible limitations imposed on maximum payload size. In some cases, this limit can be configured (for example, see [kitty#3937](https://github.com/kovidgoyal/kitty/issues/3937)), but in practice I found that it only takes one weak link in the chain to silently truncate copied content in a way that undermines confidence in the entire system. Given that I routinely copy absurdly large slabs of text (eg. log or debug output) in various environments (ie. local and remote), the downsides make OSC-52 unattractive for my personal use. But if a beginner were to ask me how to get remote copying working with as little effort as possible, I'd point them towards OSC-52 — with a suitable disclaimer about possible silent truncation — because their tools may already support it, and they won't have to go to the effort of installing and configuring Clipper.
+
+[^osc52]: A sign of just how recent this addition is the fact that Wikipedia doesn't currently mention it, and the most authoritative explanation for what it is currently exists in the form of a Reddit thread.
+
 # Authors
 
 Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
