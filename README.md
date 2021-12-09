@@ -538,7 +538,8 @@ Personally, I continue to use Clipper because most OSC-52 implementations seem t
 
 # Authors
 
-Clipper is written and maintained by Greg Hurrell <greg@hurrell.net>.
+Clipper is written and maintained by Greg Hurrell &lt;greg@hurrell.net&gt;.
+
 Other contributors that have submitted patches include, in alphabetical order:
 
 - Daniel Thatcher
