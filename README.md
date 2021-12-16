@@ -4,8 +4,8 @@
 
 Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
 
-![Example topology](https://raw.github.com/wincent/clipper/media/diagram-light.png#gh-light-mode-only)
-![Example topology](https://raw.github.com/wincent/clipper/media/diagram-dark.png#gh-dark-mode-only)
+![Example topology](./diagram-light.png#gh-light-mode-only)
+![Example topology](./diagram-dark.png#gh-dark-mode-only)
 
 In the above example, you start off in a shell on your local machine; from there you use `ssh` to a remote machine, where:
 
