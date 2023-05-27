@@ -1,25 +1,31 @@
 VERSION := $(shell git describe --always --dirty)
 
+ifdef STATIC
+	CGO := CGO_ENABLED=0
+endif
+
 help:
 	@echo 'make build   - build the clipper executable'
 	@echo 'make tag     - tag the current HEAD with VERSION'
 	@echo 'make archive - create an archive of the current HEAD for VERSION'
 	@echo 'make upload  - upload the built archive of VERSION to Amazon S3'
 	@echo 'make all     - build, tag, archive and upload VERSION'
+	@echo ''
+	@echo 'Append STATIC=1 to build a static binary.'
 
 version:
 	@if [ "$$VERSION" = "" ]; then echo "VERSION not set"; exit 1; fi
 
 clipper_linux:
-	GOOS=linux GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_linux clipper.go
+	$(CGO) GOOS=linux GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_linux clipper.go
 
 clipper_darwin:
-	GOOS=darwin GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_darwin clipper.go
+	$(CGO) GOOS=darwin GOARCH=amd64 go build -ldflags="-X main.version=${VERSION}" -o clipper_darwin clipper.go
 
 clipper_all: clipper_linux clipper_darwin
 
 clipper: clipper.go
-	go build -ldflags="-X main.version=${VERSION}" $^
+	$(CGO) go build -ldflags="-X main.version=${VERSION}" $^
 
 build: clipper
 
