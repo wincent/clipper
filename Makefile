@@ -1,4 +1,5 @@
-VERSION := $(shell git describe --always --dirty)
+VERSION ?= $(shell git describe --always --dirty)
+export VERSION
 
 help:
 	@echo 'make build   - build the clipper executable'
