@@ -33,8 +33,10 @@ clipper-${VERSION}.zip: clipper
 	zip $@ clipper
 
 upload: clipper-${VERSION}.zip
-	aws --curl-options=--insecure put s3.wincent.com/clipper/releases/clipper-${VERSION}.zip clipper-${VERSION}.zip
-	aws --curl-options=--insecure put "s3.wincent.com/clipper/releases/clipper-${VERSION}.zip?acl" --public
+	# Requires credentials to have been set up with: `aws configure`
+	# Verify credential set-up with: `aws sts get-caller-identity`
+	# See also: ~/.aws/credentials
+	aws s3 cp "clipper-${VERSION}.zip" s3://s3.wincent.com/clipper/releases/clipper-${VERSION}.zip --acl public-read
 
 all: tag build archive upload
 
