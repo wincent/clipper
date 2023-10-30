@@ -39,6 +39,9 @@ upload: clipper-${VERSION}.zip
 	# See also: ~/.aws/credentials
 	aws s3 cp "clipper-${VERSION}.zip" s3://s3.wincent.com/clipper/releases/clipper-${VERSION}.zip --acl public-read
 
+brew:
+	brew bump-formula-pr clipper --version "$VERSION"
+
 all: tag build archive upload
 
 .PHONY: clean
