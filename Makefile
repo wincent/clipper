@@ -40,7 +40,7 @@ upload: clipper-${VERSION}.zip
 	aws s3 cp "clipper-${VERSION}.zip" s3://wincent/clipper/releases/clipper-${VERSION}.zip --acl public-read
 
 brew:
-	brew bump-formula-pr clipper --version "$VERSION"
+	brew bump --open-pr clipper
 
 all: tag build archive upload
 
