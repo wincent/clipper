@@ -175,7 +175,7 @@ Alternatively, if you have a working Go environment on your system you can do:
 
 Finally, if you want to do things manually, you can clone from the authoritative Git repo and build manually (which again requires a working Go environment):
 
-    git clone git://git.wincent.com/clipper.git
+    git clone git://git.wincent.dev/clipper.git
     cd clipper
     go build
 
@@ -552,11 +552,10 @@ Other contributors that have submitted patches include, in alphabetical order:
 
 The official Clipper source code repo is at:
 
-- http://git.wincent.com/clipper.git
+- https://github.com/wincent/clipper
 
 Mirrors exist at:
 
-- https://github.com/wincent/clipper
 - https://gitlab.com/wincent/clipper
 - https://bitbucket.org/ghurrell/clipper
 
