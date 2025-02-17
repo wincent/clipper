@@ -80,7 +80,7 @@ Once everything is configured, all of this happens transparently; editing in `vi
     " Or, if your version of netcat doesn't have socket support and you want to use socat:
     nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
 
-Alternatively, use the [vim-clipper plug-in](https://github.com/wincent/vim-clipper).
+Alternatively, use the [nvim-clipper](https://github.com/wincent/nvim-clipper) or [vim-clipper](https://github.com/wincent/vim-clipper) plug-ins.
 
 ## Configuration for `~/.bash_profile`, `~/.zshrc` etc
 
@@ -386,7 +386,7 @@ Or, with `socat`:
 
     nnoremap <leader>y :call system('socat - UNIX-CLIENT:~/.clipper.sock', @0)<CR>
 
-For the lazy, this functionality plus a `:Clip` command is made available as a [separate Vim plug-in](https://github.com/wincent/vim-clipper) called "vim-clipper", which additionally makes it possible to use the `TextYankPost` autocommand to forward all yanked text to Clipper automatically on versions of Vim that support it (currently, Neovim).
+For the lazy, this functionality plus a `:Clip` command is made available as a separate Neovim or Vim plug-in ([nvim-clipper](https://github.com/wincent/nvim-clipper) and [vim-clipper](https://github.com/wincent/vim-clipper)), which additionally make it possible to use the `TextYankPost` autocommand to forward all yanked text to Clipper automatically.
 
 ## Configuring Zsh (or Bash)
 
