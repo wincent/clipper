@@ -509,7 +509,7 @@ Just as with TCP port forwarding, forwarding can fail when using UNIX domain soc
 
 In this case, the fix is to remove the stale socket on the remote host. For example, assuming a socket in `$HOME/.clipper.sock` on the remote host, `$HOST`:
 
-     $ ssh $HOST rm .clipper.sock
+    $ ssh $HOST rm .clipper.sock
 
 ## Fixing delays when sending data to Clipper via `nc`
 
