@@ -188,8 +188,8 @@ The following examples show how you would install the built Clipper executable t
 #### macOS example setup
 
     sudo cp clipper /usr/local/bin
-    cp contrib/darwin/tcp-port/com.wincent.clipper.plist ~/Library/LaunchAgents/
-    launchctl load -w -S Aqua ~/Library/LaunchAgents/com.wincent.clipper.plist
+    cp contrib/darwin/tcp-port/dev.wincent.clipper.plist ~/Library/LaunchAgents/
+    launchctl load -w -S Aqua ~/Library/LaunchAgents/dev.wincent.clipper.plist
 
 Note that these commands may fail to do the right thing inside of a tmux session under macOS. Run `launchctl` from outside of tmux, otherwise Clipper may find itself in the wrong execution context. Similarly, when running manually, either run Clipper outside of tmux or use the aforementioned `reattach-to-user-space` as a wrapper.
 
@@ -218,8 +218,8 @@ A Homebrew installation can be reversed with:
 
 A manual launch agent installation can be reversed with the following (and as before, note that you should probably only run `launchctl` outside of a tmux session):
 
-    launchctl unload ~/Library/LaunchAgents/com.wincent.clipper.plist
-    rm ~/Library/LaunchAgents/com.wincent.clipper.plist
+    launchctl unload ~/Library/LaunchAgents/dev.wincent.clipper.plist
+    rm ~/Library/LaunchAgents/dev.wincent.clipper.plist
     sudo rm /usr/local/bin/clipper
 
 On Linux:
@@ -311,7 +311,7 @@ See the "Security" section below for more.
 
 ### `--logfile`
 
-Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to "~/Library/Logs/com.wincent.clipper.log".
+Unsurprisingly, controls where the Clipper daemon logs its output. Defaults to "~/Library/Logs/dev.wincent.clipper.log".
 
 As an example, you could disable all logging by setting this to "/dev/null".
 
@@ -655,6 +655,7 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## main (not yet released)
 
+- Changed default log file path on macOS to `~/Library/Logs/dev.wincent.clipper.log`.
 - Unless passed an explicit configuration file path with `-c` or `--config`, Clipper now checks for a configuration file at`$XDG_CONFIG_HOME/clipper/clipper.json`, then `~/.config/clipper/clipper.json`, then `~/.clipper.json`.
 - Added a structured-request protocol with a `"notification"` request type that dispatches to a user-supplied handler script. Legacy raw-bytes-to-clipboard behaviour is unchanged for connections that don't start with the magic prefix.
 - Added a `"handlers"` object to `~/.clipper.json` for configuring the notification handler and, optionally, overriding the clipboard executable and flags on a per-field basis.

@@ -200,7 +200,7 @@ func setDefaults() {
 		defaults.Executable = StringFlag{value: "xclip"}
 		defaults.Flags = StringFlag{value: "-selection clipboard"}
 	} else {
-		defaults.Logfile = StringFlag{value: "~/Library/Logs/com.wincent.clipper.log"}
+		defaults.Logfile = StringFlag{value: "~/Library/Logs/dev.wincent.clipper.log"}
 		defaults.Executable = StringFlag{value: "pbcopy"}
 		defaults.Flags = StringFlag{value: ""}
 	}

@@ -3,10 +3,12 @@
 <plist version="1.0">
 <dict>
 	<key>Label</key>
-	<string>com.wincent.clipper</string>
+	<string>dev.wincent.clipper</string>
 	<key>ProgramArguments</key>
 	<array>
 		<string>/usr/local/bin/clipper</string>
+		<string>--address</string>
+		<string>~/.clipper.sock</string>
 	</array>
 	<key>EnvironmentVariables</key>
 	<dict>
