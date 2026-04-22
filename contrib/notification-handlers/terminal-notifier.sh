@@ -17,11 +17,17 @@
 # to `terminal-notifier`. Adjust `-activate` to match whichever app you want
 # brought to the front when the notification is clicked.
 #
-# Requires: jq, terminal-notifier (both on $PATH).
+# Requires: jq, terminal-notifier (both on `$PATH`). On macOS, launchd has an
+# impoverished `$PATH`, so we add the default Homebrew directory for
+# convenience.
 
 set -eu
 
 json=$(cat)
+
+if [ -d /opt/homebrew/bin ]; then
+  PATH="$PATH:/opt/homebrew/bin"
+fi
 
 # Defensive `// ""`: jq would otherwise emit the literal string "null" for a
 # JSON null, which is rarely what a human wants to see in a notification.
