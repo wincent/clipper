@@ -2,7 +2,7 @@
 
 # Overview
 
-Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in the background providing a service that exposes the local clipboard to tmux sessions and other processes running both locally and remotely.
+Clipper is a macOS "launch agent" &mdash; or Linux daemon &mdash; that runs in the background providing a service that exposes the local clipboard, and (optionally) the capacity to display desktop notifications, to tmux sessions and other processes running both locally and remotely.
 
 ![Example topology](./media/diagram-light.png#gh-light-mode-only)
 ![Example topology](./media/diagram-dark.png#gh-dark-mode-only)
@@ -242,9 +242,9 @@ Usage of clipper:
   -address string
         address to bind to (default loopback interface)
   -c string
-        path to (JSON) config file (default "~/.clipper.json")
+        path to (JSON) config file
   -config string
-        path to (JSON) config file (default "~/.clipper.json")
+        path to (JSON) config file
   -e string
         program called to write to clipboard (default "pbcopy")
   -executable string
@@ -257,9 +257,9 @@ Usage of clipper:
   -help
         show usage information
   -l string
-        path to logfile (default "~/Library/Logs/com.wincent.clipper.log")
+        path to logfile
   -logfile string
-        path to logfile (default "~/Library/Logs/com.wincent.clipper.log")
+        path to logfile
   -p int
         port to listen on (default 8377)
   -port int
@@ -271,15 +271,22 @@ Usage of clipper:
 
 The defaults shown above apply on macOS. Run `clipper -h` on Linux to see the defaults that apply there.
 
-You can explicitly set these on the command line, or in the plist file if you are using Clipper as a launch agent. Clipper will also look for a configuration file in JSON format at `~/.clipper.json` (this location can be overidden with the `--config`/`-c` options) and read options from that. The following options are supported:
+You can explicitly set these on the command line, or in the plist file if you are using Clipper as a launch agent. Clipper will also look for a configuration file in JSON format and read options from it. When `--config`/`-c` is not passed, Clipper searches the following locations, in order, and uses the first readable one:
+
+1. `$XDG_CONFIG_HOME/clipper/clipper.json`
+2. `~/.config/clipper/clipper.json`
+3. `~/.clipper.json`
+
+The following options are supported:
 
 - `address`
 - `executable`
 - `flags`
 - `logfile`
 - `port`
+- `handlers` (see `handlers` section below)
 
-Here is a sample `~/.clipper.json` config file:
+Here is a sample config file:
 
 ```
 {
@@ -315,6 +322,59 @@ The executable used to place content on the clipboard (defaults to `pbcopy` on m
 ### `--flags`
 
 The flags to pass to the `executable` (defaults to `-selection clipboard` on Linux and nothing on macOS).
+
+### `handlers` (config file only)
+
+The `handlers` object is an optional, config-file-only extension for configuring request-specific behaviour. It is keyed by request type; recognised keys are `"text/plain"` (which supersedes the top-level `executable`/`flags` for ordinary clipboard writes) and `"notification"` (which is required in order for notification requests to do anything; see "Structured requests" below).
+
+For example, a config that uses a custom clipboard wrapper and enables notifications via [`terminal-notifier`][terminal-notifier] might look like:
+
+```json
+{
+  "handlers": {
+    "text/plain": {
+      "executable": "my-clipboard-helper",
+      "flags": ["--quiet"]
+    },
+    "notification": {
+      "executable": "/Users/me/bin/notification-handler.sh"
+    }
+  }
+}
+```
+
+If the `"text/plain"` handler is configured, any fields that are absent fall through to the legacy top-level `"executable"` and `"flags"` options (and from there to the per-platform defaults), so existing configurations continue to work unchanged. An explicit empty `"flags": []` in a handler entry suppresses any fallback flags.
+
+The `"notification"` handler does not accept a `"flags"` field at all, making use of `"executable"` only; see below for why.
+
+## Structured requests
+
+By default, Clipper treats every byte it receives on the socket as clipboard content. Alternatively, clients can send a structured request by prefixing the connection with the magic sequence:
+
+    dev.wincent.clipper:magic:v1\n
+
+followed immediately by a single line of JSON describing the request, also terminated by a newline (`\r\n` is also accepted). In both cases `\n` denotes a single newline byte (0x0A), not the two-character escape sequence. The trailing `:v1` identifies the wire format version, reserving room for future revisions that make incompatible changes. Connections that do not begin with this exact byte sequence (including ones speaking a wire format version the daemon doesn't recognise) continue to be treated as raw clipboard content, so existing tools (`nc`, `socat`, editor plug-ins, and so on) are unaffected.
+
+Only one request type is currently defined: `"notification"`.
+
+```
+dev.wincent.clipper:magic:v1
+{"type":"notification","title":"build done","subtitle":"all green","message":"42 tests passed"}
+```
+
+Only `"title"` is required. `"subtitle"` and `"message"` are optional. All three must be strings if present. Any additional fields are ignored by Clipper itself but passed through to the handler script unchanged.
+
+When a valid notification frame arrives, Clipper spawns the program configured as `handlers.notification.executable` (see "handlers" above) and pipes the validated JSON frame, byte-for-byte as received apart from the trailing newline, to its standard input.
+
+A complete example wrapper for `terminal-notifier` lives at [`contrib/notification-handlers/terminal-notifier.sh`](contrib/notification-handlers/terminal-notifier.sh).
+
+If clipper logs `Dispatched notification` and the handler exits cleanly but no notification actually appears on screen, check macOS's "Do Not Disturb" or any active Focus mode (notifications delivered while a Focus is active are dropped by the system, with a corresponding "(fr.julienxx.oss.terminal-notifier) muted by DND suppression: delay" message visible in the macOS Console.app).
+
+A reference client that handles the framing and JSON escaping for you is available at [`contrib/clip-notify`](contrib/clip-notify):
+
+    clip-notify --title "build done" --subtitle "all green" --message "42 tests passed"
+
+See the comments at the top of that script for the handful of environment variables it understands.
 
 ## Configuring tmux
 
@@ -527,7 +587,13 @@ This may be fine on a single-user machine, but when you start using `ssh -R` to 
 
 Most SSH systems are configured to use restrictive permissions on forwarded socket files (unless overridden; see the documentation for `StreamLocalBindMask` in `man ssh_config`), but you may wish to place the socket in a non-shared location like `~/.clipper.sock` rather than a shared one like `/tmp/clipper.sock` in any case.
 
+If you enable the `"notification"` handler, bear in mind that the handler program will be invoked with untrusted JSON on its standard input for every valid frame the daemon accepts. The daemon itself does minimal validation (checks the magic prefix, parses the JSON, verifies that `"title"` is a non-empty string and that `"subtitle"`, and `"message"` are strings when supplied) and then passes the raw frame through verbatim. Any further validation, escaping, or rate limiting is the handler script's responsibility. In particular, avoid interpolating fields from the frame into a shell command without escaping them; `jq`'s `-r` output is plain text and should not be embedded unquoted in `eval`-able contexts.
+
 # Frequently Asked Questions
+
+## Can I put images or other binary data in the clipboard?
+
+Not directly. Clipper's legacy path pipes the received bytes to a text-oriented clipboard tool (`pbcopy`, `xclip`, etc), so piping a PNG into `clip` lands the raw bytes, interpreted as text, in the clipboard rather than an image.
 
 ## How does Clipper compare to the OSC-52 escape sequence?
 
@@ -536,6 +602,9 @@ OSC-52 is a relatively recent unofficial addition to the set of [ANSI escape seq
 Personally, I continue to use Clipper because most OSC-52 implementations seem to have arbitrary, incompatible limitations imposed on maximum payload size. In some cases, this limit can be configured (for example, see [kitty#3937](https://github.com/kovidgoyal/kitty/issues/3937)), but in practice I found that it only takes one weak link in the chain to silently truncate copied content in a way that undermines confidence in the entire system. Given that I routinely copy absurdly large slabs of text (eg. log or debug output) in various environments (ie. local and remote), the downsides make OSC-52 unattractive for my personal use. But if a beginner were to ask me how to get remote copying working with as little effort as possible, I'd point them towards OSC-52 — with a suitable disclaimer about possible silent truncation — because their tools may already support it, and they won't have to go to the effort of installing and configuring Clipper.
 
 [^osc52]: A sign of just how recent this addition is the fact that Wikipedia doesn't currently mention it, and the most authoritative explanation for what it is currently exists in the form of a Reddit thread.
+
+[terminal-notifier]: https://github.com/julienXX/terminal-notifier
+[notify-send]: https://man.archlinux.org/man/notify-send.1
 
 # Authors
 
@@ -586,6 +655,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 ## main (not yet released)
 
+- Unless passed an explicit configuration file path with `-c` or `--config`, Clipper now checks for a configuration file at`$XDG_CONFIG_HOME/clipper/clipper.json`, then `~/.config/clipper/clipper.json`, then `~/.clipper.json`.
+- Added a structured-request protocol with a `"notification"` request type that dispatches to a user-supplied handler script. Legacy raw-bytes-to-clipboard behaviour is unchanged for connections that don't start with the magic prefix.
+- Added a `"handlers"` object to `~/.clipper.json` for configuring the notification handler and, optionally, overriding the clipboard executable and flags on a per-field basis.
+- Added a reference client (`contrib/clip-notify`) and an example notification handler wrapping `terminal-notifier` (`contrib/notification-handlers/terminal-notifier.sh`).
 - Automatically create logfile directory (patch from Daniel Thatcher, [#21](https://github.com/wincent/clipper/pull/21/commits)).
 
 ## 2.0.0 (4 September 2018)
