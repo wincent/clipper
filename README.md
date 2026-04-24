@@ -653,13 +653,16 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
-## main (not yet released)
+## 3.0.0 (24 April 2026)
 
 - Changed default log file path on macOS to `~/Library/Logs/dev.wincent.clipper.log`.
 - Unless passed an explicit configuration file path with `-c` or `--config`, Clipper now checks for a configuration file at`$XDG_CONFIG_HOME/clipper/clipper.json`, then `~/.config/clipper/clipper.json`, then `~/.clipper.json`.
 - Added a structured-request protocol with a `"notification"` request type that dispatches to a user-supplied handler script. Legacy raw-bytes-to-clipboard behaviour is unchanged for connections that don't start with the magic prefix.
 - Added a `"handlers"` object for configuring the notification handler and, optionally, overriding the clipboard executable and flags on a per-field basis.
 - Added a reference client (`contrib/clip-notify`) and an example notification handler wrapping `terminal-notifier` (`contrib/notification-handlers/terminal-notifier.sh`).
+
+## 2.1.0 (30 October 2023)
+
 - Automatically create logfile directory (patch from Daniel Thatcher, [#21](https://github.com/wincent/clipper/pull/21)).
 
 ## 2.0.0 (4 September 2018)
