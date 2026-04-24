@@ -653,6 +653,10 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 
 # History
 
+## main (not yet released)
+
+...
+
 ## 3.0.0 (24 April 2026)
 
 - Changed default log file path on macOS to `~/Library/Logs/dev.wincent.clipper.log`.
