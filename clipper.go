@@ -148,7 +148,12 @@ type NotificationHandlerOptions struct {
 	Executable string `json:"executable"`
 }
 
-var version = "unknown"
+// Placeholder version. Overwritten with real version using ldflags; eg.
+//
+//	go build -ldflags="-X main.version=$(git describe --tags --always --dirty)"
+//
+// (see Makefile, Homebrew formula — https://github.com/Homebrew/homebrew-core/blob/main/Formula/c/clipper.rb — etc).
+var version = "main"
 
 var config Options   // Options read from disk.
 var defaults Options // Default options.

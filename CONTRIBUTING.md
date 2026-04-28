@@ -2,6 +2,14 @@
 
 ## Cutting a new release
 
+First:
+
+1. Set the `version` string in `clipper.go`.
+2. Update the "History" section in the `README.md`.
+2. Commit this using a message like `chore: prepare for $VERSION release`.
+
+Then, tag, build, and upload.
+
 As a convenience, there's a `Makefile` target for this:
 
 ```
@@ -12,7 +20,7 @@ Which is roughly equivalent to:
 
 ```
 git tag -s -m '3.0.0 release' 3.0.0
-make bulid
+make build
 make archive
 make upload
 ```
@@ -25,6 +33,8 @@ git push all --follow-tags # "all" is a remote I have that pushes to all my mirr
 # Opens https://github.com/wincent/clipper so that you can publish release notes.
 git hub open
 ```
+
+Finally, reset the `version` string in `clipper.go` back to "main", and start a new section under "History" in the docs, commit that, and push.
 
 ## Updating the Homebrew formula
 
